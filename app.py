@@ -1,34 +1,49 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import sqlite3
+import os
 
+# Создание приложения Flask
 app = Flask(__name__)
-CORS(app)
+
+# Настройки CORS
+CORS(app, resources={r"/ideas/*": {"origins": "*"}})
+
+# Путь к базе данных
+DB_PATH = os.path.join(os.path.dirname(__file__), 'ideas.db')
 
 # Инициализация базы данных
 def init_db():
-    conn = sqlite3.connect('ideas.db')
-    cursor = conn.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS ideas (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            idea TEXT NOT NULL
-        )
-    ''')
-    conn.commit()
-    conn.close()
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS ideas (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                idea TEXT NOT NULL
+            )
+        ''')
+        conn.commit()
+    except sqlite3.Error as e:
+        print(f"Ошибка базы данных при инициализации: {e}")
+    finally:
+        conn.close()
 
 init_db()
 
 # Эндпоинт для получения всех идей
 @app.route('/ideas', methods=['GET'])
 def get_ideas():
-    conn = sqlite3.connect('ideas.db')
-    cursor = conn.cursor()
-    cursor.execute('SELECT id, idea FROM ideas')
-    ideas = [{"id": row[0], "idea": row[1]} for row in cursor.fetchall()]
-    conn.close()
-    return jsonify(ideas)
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute('SELECT id, idea FROM ideas')
+        ideas = [{"id": row[0], "idea": row[1]} for row in cursor.fetchall()]
+        return jsonify(ideas), 200
+    except sqlite3.Error as e:
+        return jsonify({"error": f"Ошибка базы данных: {e}"}), 500
+    finally:
+        conn.close()
 
 # Эндпоинт для добавления новой идеи
 @app.route('/ideas', methods=['POST'])
@@ -36,24 +51,33 @@ def add_idea():
     data = request.json
     idea = data.get("idea")
     if not idea:
-        return jsonify({"error": "Idea is required"}), 400
+        return jsonify({"error": "Поле 'idea' обязательно"}), 400
 
-    conn = sqlite3.connect('ideas.db')
-    cursor = conn.cursor()
-    cursor.execute('INSERT INTO ideas (idea) VALUES (?)', (idea,))
-    conn.commit()
-    conn.close()
-    return jsonify({"message": "Idea added successfully"}), 201
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute('INSERT INTO ideas (idea) VALUES (?)', (idea,))
+        conn.commit()
+        return jsonify({"message": "Идея успешно добавлена"}), 201
+    except sqlite3.Error as e:
+        return jsonify({"error": f"Ошибка базы данных: {e}"}), 500
+    finally:
+        conn.close()
 
 # Эндпоинт для удаления идеи
 @app.route('/ideas/<int:idea_id>', methods=['DELETE'])
 def delete_idea(idea_id):
-    conn = sqlite3.connect('ideas.db')
-    cursor = conn.cursor()
-    cursor.execute('DELETE FROM ideas WHERE id = ?', (idea_id,))
-    conn.commit()
-    conn.close()
-    return jsonify({"message": "Idea deleted successfully"}), 200
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute('DELETE FROM ideas WHERE id = ?', (idea_id,))
+        conn.commit()
+        return jsonify({"message": "Идея успешно удалена"}), 200
+    except sqlite3.Error as e:
+        return jsonify({"error": f"Ошибка базы данных: {e}"}), 500
+    finally:
+        conn.close()
 
+# Точка входа
 if __name__ == "__main__":
     app.run(debug=True)
