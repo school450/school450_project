@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Приём идей и предложений - Школа 450</title>
+    <title>Школа 450 - Приём идей и управление</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,21 +12,19 @@
             background-color: #f4f4f4;
         }
         .container {
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
             background: #fff;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        h1 {
-            font-size: 24px;
-            color: #333;
+        h1, h2 {
             text-align: center;
+            color: #333;
         }
-        textarea {
+        textarea, input[type="text"] {
             width: 100%;
-            height: 100px;
             margin: 10px 0;
             padding: 10px;
             border: 1px solid #ddd;
@@ -45,19 +43,44 @@
         button:hover {
             background-color: #0056b3;
         }
+        .idea {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f9f9f9;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .idea p {
+            margin: 0;
+        }
+        .idea button {
+            background-color: #dc3545;
+        }
+        .idea button:hover {
+            background-color: #b02a37;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Приём идей и предложений</h1>
+        <h1>Приём идей - Школа 450</h1>
         <textarea id="ideaInput" placeholder="Введите вашу идею..."></textarea>
         <button onclick="submitIdea()">Отправить</button>
         <div id="responseMessage" style="margin-top: 10px;"></div>
+
+        <h2>Администрирование</h2>
+        <div id="ideasList">
+            <p>Загрузка идей...</p>
+        </div>
     </div>
     <script>
-        // Укажите URL вашего сервера Render:
+        // URL вашего сервера Render
         const serverUrl = "https://school450-project-1xdh.onrender.com";
 
+        // Функция для отправки новой идеи
         async function submitIdea() {
             const ideaInput = document.getElementById('ideaInput').value.trim();
             const responseMessage = document.getElementById('responseMessage');
@@ -80,6 +103,7 @@
                     responseMessage.textContent = "Идея успешно отправлена!";
                     responseMessage.style.color = "green";
                     document.getElementById('ideaInput').value = '';
+                    loadIdeas(); // Перезагрузить список идей
                 } else {
                     responseMessage.textContent = "Ошибка при отправке идеи.";
                     responseMessage.style.color = "red";
@@ -89,6 +113,56 @@
                 responseMessage.style.color = "red";
             }
         }
+
+        // Функция для загрузки всех идей
+        async function loadIdeas() {
+            const ideasList = document.getElementById('ideasList');
+            ideasList.innerHTML = "<p>Загрузка идей...</p>";
+
+            try {
+                const response = await fetch(`${serverUrl}/ideas`);
+                if (response.ok) {
+                    const ideas = await response.json();
+                    if (ideas.length === 0) {
+                        ideasList.innerHTML = "<p>Идей пока нет.</p>";
+                    } else {
+                        ideasList.innerHTML = ideas.map(idea => `
+                            <div class="idea">
+                                <p>${idea.idea}</p>
+                                <button onclick="deleteIdea(${idea.id})">Удалить</button>
+                            </div>
+                        `).join('');
+                    }
+                } else {
+                    ideasList.innerHTML = "<p>Ошибка загрузки идей.</p>";
+                }
+            } catch (error) {
+                ideasList.innerHTML = "<p>Не удалось загрузить идеи.</p>";
+            }
+        }
+
+        // Функция для удаления идеи
+        async function deleteIdea(id) {
+            if (!confirm("Вы уверены, что хотите удалить эту идею?")) return;
+
+            try {
+                const response = await fetch(`${serverUrl}/ideas/${id}`, {
+                    method: "DELETE",
+                });
+
+                if (response.ok) {
+                    alert("Идея удалена.");
+                    loadIdeas(); // Перезагрузить список идей
+                } else {
+                    alert("Ошибка при удалении идеи.");
+                }
+            } catch (error) {
+                alert("Не удалось соединиться с сервером.");
+            }
+        }
+
+        // Загрузка идей при загрузке страницы
+        loadIdeas();
     </script>
 </body>
 </html>
