@@ -7,7 +7,7 @@ import os
 app = Flask(__name__)
 
 # Настройки CORS
-CORS(app, resources={r"/ideas/*": {"origins": "*"}})
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Путь к базе данных
 DB_PATH = os.path.join(os.path.dirname(__file__), 'ideas.db')
@@ -85,6 +85,5 @@ def delete_idea(idea_id):
 
 # Точка входа
 if __name__ == "__main__":
-    # Устанавливаем порт из переменной окружения для Render
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port, debug=False)

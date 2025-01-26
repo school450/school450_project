@@ -8,92 +8,64 @@
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
+            padding: 20px;
+            background-color: #f4f4f4;
         }
         .container {
             max-width: 600px;
-            margin: 30px auto;
-            padding: 20px;
+            margin: 0 auto;
             background: #fff;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        h1, h2 {
-            text-align: center;
+        h1 {
+            font-size: 24px;
             color: #333;
+            text-align: center;
         }
         textarea {
             width: 100%;
             height: 100px;
-            padding: 10px;
             margin: 10px 0;
+            padding: 10px;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 5px;
+            font-size: 16px;
         }
         button {
-            width: 100%;
-            padding: 10px;
             background-color: #007bff;
+            color: #fff;
             border: none;
-            border-radius: 4px;
-            color: white;
+            padding: 10px 15px;
             font-size: 16px;
+            border-radius: 5px;
             cursor: pointer;
         }
         button:hover {
             background-color: #0056b3;
-        }
-        .admin-section {
-            margin-top: 20px;
-        }
-        .idea {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #f9f9f9;
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-        }
-        .delete-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .delete-btn:hover {
-            background: #c82333;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Приём идей и предложений</h1>
-        <textarea id="ideaInput" placeholder="Введите вашу идею или предложение..."></textarea>
+        <textarea id="ideaInput" placeholder="Введите вашу идею..."></textarea>
         <button onclick="submitIdea()">Отправить</button>
-        <hr>
-        <h2>Вход администратора</h2>
-        <input type="password" id="adminCode" placeholder="Введите код администратора">
-        <button onclick="loginAdmin()">Войти</button>
-        <div id="adminSection" class="admin-section" style="display: none;">
-            <h2>Заявки:</h2>
-            <div id="ideasList"></div>
-        </div>
+        <div id="responseMessage" style="margin-top: 10px;"></div>
     </div>
     <script>
-        const adminPassword = "12345"; // Код администратора
-        const serverUrl = "http://127.0.0.1:5000"; // Адрес сервера
+        // Укажите URL вашего сервера Render:
+        const serverUrl = "https://school450-project-1xdh.onrender.com";
 
-        // Отправка новой идеи
         async function submitIdea() {
-            const ideaInput = document.getElementById('ideaInput');
-            const idea = ideaInput.value.trim();
-            if (!idea) {
-                alert("Пожалуйста, введите текст идеи.");
+            const ideaInput = document.getElementById('ideaInput').value.trim();
+            const responseMessage = document.getElementById('responseMessage');
+            responseMessage.textContent = '';
+
+            if (!ideaInput) {
+                responseMessage.textContent = "Пожалуйста, введите идею!";
+                responseMessage.style.color = "red";
                 return;
             }
 
@@ -101,64 +73,20 @@
                 const response = await fetch(`${serverUrl}/ideas`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ idea })
+                    body: JSON.stringify({ idea: ideaInput }),
                 });
 
                 if (response.ok) {
-                    alert("Идея успешно отправлена!");
-                    ideaInput.value = "";
+                    responseMessage.textContent = "Идея успешно отправлена!";
+                    responseMessage.style.color = "green";
+                    document.getElementById('ideaInput').value = '';
                 } else {
-                    alert("Ошибка при отправке идеи.");
+                    responseMessage.textContent = "Ошибка при отправке идеи.";
+                    responseMessage.style.color = "red";
                 }
             } catch (error) {
-                alert("Не удалось соединиться с сервером.");
-            }
-        }
-
-        // Авторизация администратора
-        function loginAdmin() {
-            const code = document.getElementById('adminCode').value;
-            if (code === adminPassword) {
-                document.getElementById('adminSection').style.display = 'block';
-                fetchIdeas();
-            } else {
-                alert("Неверный код администратора.");
-            }
-        }
-
-        // Получение списка идей
-        async function fetchIdeas() {
-            try {
-                const response = await fetch(`${serverUrl}/ideas`);
-                const ideas = await response.json();
-
-                const ideasList = document.getElementById('ideasList');
-                ideasList.innerHTML = "";
-                ideas.forEach(({ id, idea }) => {
-                    const ideaElement = document.createElement('div');
-                    ideaElement.className = 'idea';
-                    ideaElement.innerHTML = `
-                        <div>${idea}</div>
-                        <button class="delete-btn" onclick="deleteIdea(${id})">Удалить</button>
-                    `;
-                    ideasList.appendChild(ideaElement);
-                });
-            } catch (error) {
-                alert("Не удалось загрузить идеи.");
-            }
-        }
-
-        // Удаление идеи
-        async function deleteIdea(id) {
-            try {
-                const response = await fetch(`${serverUrl}/ideas/${id}`, { method: "DELETE" });
-                if (response.ok) {
-                    fetchIdeas();
-                } else {
-                    alert("Ошибка при удалении идеи.");
-                }
-            } catch (error) {
-                alert("Не удалось соединиться с сервером.");
+                responseMessage.textContent = "Не удалось соединиться с сервером.";
+                responseMessage.style.color = "red";
             }
         }
     </script>
