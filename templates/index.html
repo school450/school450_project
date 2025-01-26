@@ -3,92 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Школа 450 - Приём идей и управление</title>
+    <title>Приём идей и предложений - Школа 450</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 20px;
-            background-color: #f4f4f4;
+            padding: 0;
+            background-color: #f4f4f9;
         }
         .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: #fff;
+            max-width: 600px;
+            margin: 30px auto;
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
         h1, h2 {
             text-align: center;
             color: #333;
         }
-        textarea, input[type="text"] {
+        textarea {
             width: 100%;
-            margin: 10px 0;
+            height: 100px;
             padding: 10px;
+            margin: 10px 0;
             border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
+            border-radius: 4px;
         }
         button {
+            width: 100%;
+            padding: 10px;
             background-color: #007bff;
-            color: #fff;
             border: none;
-            padding: 10px 15px;
+            border-radius: 4px;
+            color: white;
             font-size: 16px;
-            border-radius: 5px;
             cursor: pointer;
         }
         button:hover {
             background-color: #0056b3;
+        }
+        .admin-section {
+            margin-top: 20px;
         }
         .idea {
             display: flex;
             justify-content: space-between;
             align-items: center;
             background: #f9f9f9;
-            margin: 10px 0;
             padding: 10px;
-            border-radius: 5px;
+            margin: 5px 0;
+            border-radius: 4px;
             border: 1px solid #ddd;
         }
-        .idea p {
-            margin: 0;
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
         }
-        .idea button {
-            background-color: #dc3545;
-        }
-        .idea button:hover {
-            background-color: #b02a37;
+        .delete-btn:hover {
+            background: #c82333;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Приём идей - Школа 450</h1>
-        <textarea id="ideaInput" placeholder="Введите вашу идею..."></textarea>
+        <h1>Приём идей и предложений</h1>
+        <textarea id="ideaInput" placeholder="Введите вашу идею или предложение..."></textarea>
         <button onclick="submitIdea()">Отправить</button>
-        <div id="responseMessage" style="margin-top: 10px;"></div>
-
-        <h2>Администрирование</h2>
-        <div id="ideasList">
-            <p>Загрузка идей...</p>
+        <hr>
+        <h2>Вход администратора</h2>
+        <input type="password" id="adminCode" placeholder="Введите код администратора">
+        <button onclick="loginAdmin()">Войти</button>
+        <div id="adminSection" class="admin-section" style="display: none;">
+            <h2>Заявки:</h2>
+            <div id="ideasList"></div>
         </div>
     </div>
     <script>
-        // URL вашего сервера Render
-        const serverUrl = "https://school450-project-1xdh.onrender.com";
+        // Вставляем ваш хостинг URL прямо в код
+        const serverUrl = "https://school450-project-1xdh.onrender.com"; 
 
-        // Функция для отправки новой идеи
+        // Код администратора
+        const adminPassword = "12345"; // Ваш установленный пароль администратора
+
+        // Отправка новой идеи
         async function submitIdea() {
-            const ideaInput = document.getElementById('ideaInput').value.trim();
-            const responseMessage = document.getElementById('responseMessage');
-            responseMessage.textContent = '';
-
-            if (!ideaInput) {
-                responseMessage.textContent = "Пожалуйста, введите идею!";
-                responseMessage.style.color = "red";
+            const ideaInput = document.getElementById('ideaInput');
+            const idea = ideaInput.value.trim();
+            if (!idea) {
+                alert("Пожалуйста, введите текст идеи.");
                 return;
             }
 
@@ -96,63 +104,59 @@
                 const response = await fetch(`${serverUrl}/ideas`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ idea: ideaInput }),
+                    body: JSON.stringify({ idea })
                 });
 
                 if (response.ok) {
-                    responseMessage.textContent = "Идея успешно отправлена!";
-                    responseMessage.style.color = "green";
-                    document.getElementById('ideaInput').value = '';
-                    loadIdeas(); // Перезагрузить список идей
+                    alert("Идея успешно отправлена!");
+                    ideaInput.value = "";
                 } else {
-                    responseMessage.textContent = "Ошибка при отправке идеи.";
-                    responseMessage.style.color = "red";
+                    alert("Ошибка при отправке идеи.");
                 }
             } catch (error) {
-                responseMessage.textContent = "Не удалось соединиться с сервером.";
-                responseMessage.style.color = "red";
+                alert("Не удалось соединиться с сервером.");
             }
         }
 
-        // Функция для загрузки всех идей
-        async function loadIdeas() {
-            const ideasList = document.getElementById('ideasList');
-            ideasList.innerHTML = "<p>Загрузка идей...</p>";
+        // Авторизация администратора
+        function loginAdmin() {
+            const code = document.getElementById('adminCode').value;
+            if (code === adminPassword) {
+                document.getElementById('adminSection').style.display = 'block';
+                fetchIdeas();
+            } else {
+                alert("Неверный код администратора.");
+            }
+        }
 
+        // Получение списка идей
+        async function fetchIdeas() {
             try {
                 const response = await fetch(`${serverUrl}/ideas`);
-                if (response.ok) {
-                    const ideas = await response.json();
-                    if (ideas.length === 0) {
-                        ideasList.innerHTML = "<p>Идей пока нет.</p>";
-                    } else {
-                        ideasList.innerHTML = ideas.map(idea => `
-                            <div class="idea">
-                                <p>${idea.idea}</p>
-                                <button onclick="deleteIdea(${idea.id})">Удалить</button>
-                            </div>
-                        `).join('');
-                    }
-                } else {
-                    ideasList.innerHTML = "<p>Ошибка загрузки идей.</p>";
-                }
+                const ideas = await response.json();
+
+                const ideasList = document.getElementById('ideasList');
+                ideasList.innerHTML = "";
+                ideas.forEach(({ id, idea }) => {
+                    const ideaElement = document.createElement('div');
+                    ideaElement.className = 'idea';
+                    ideaElement.innerHTML = `
+                        <div>${idea}</div>
+                        <button class="delete-btn" onclick="deleteIdea(${id})">Удалить</button>
+                    `;
+                    ideasList.appendChild(ideaElement);
+                });
             } catch (error) {
-                ideasList.innerHTML = "<p>Не удалось загрузить идеи.</p>";
+                alert("Не удалось загрузить идеи.");
             }
         }
 
-        // Функция для удаления идеи
+        // Удаление идеи
         async function deleteIdea(id) {
-            if (!confirm("Вы уверены, что хотите удалить эту идею?")) return;
-
             try {
-                const response = await fetch(`${serverUrl}/ideas/${id}`, {
-                    method: "DELETE",
-                });
-
+                const response = await fetch(`${serverUrl}/ideas/${id}`, { method: "DELETE" });
                 if (response.ok) {
-                    alert("Идея удалена.");
-                    loadIdeas(); // Перезагрузить список идей
+                    fetchIdeas();
                 } else {
                     alert("Ошибка при удалении идеи.");
                 }
@@ -160,9 +164,6 @@
                 alert("Не удалось соединиться с сервером.");
             }
         }
-
-        // Загрузка идей при загрузке страницы
-        loadIdeas();
     </script>
 </body>
 </html>
