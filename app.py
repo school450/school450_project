@@ -31,6 +31,11 @@ def init_db():
 
 init_db()
 
+# Эндпоинт для проверки доступности
+@app.route('/', methods=['GET'])
+def home():
+    return jsonify({"message": "Приложение работает!"}), 200
+
 # Эндпоинт для получения всех идей
 @app.route('/ideas', methods=['GET'])
 def get_ideas():
@@ -80,5 +85,6 @@ def delete_idea(idea_id):
 
 # Точка входа
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)), debug=True)
-
+    # Устанавливаем порт из переменной окружения для Render
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
