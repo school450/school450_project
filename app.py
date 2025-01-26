@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import sqlite3
 import os
@@ -31,10 +31,10 @@ def init_db():
 
 init_db()
 
-# Эндпоинт для проверки доступности
+# Эндпоинт для рендеринга HTML-страницы
 @app.route('/', methods=['GET'])
-def home():
-    return jsonify({"message": "Приложение работает!"}), 200
+def home_page():
+    return render_template('index.html')
 
 # Эндпоинт для получения всех идей
 @app.route('/ideas', methods=['GET'])
@@ -87,5 +87,4 @@ def delete_idea(idea_id):
 if __name__ == "__main__":
     # Устанавливаем порт из переменной окружения для Render
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)), debug=False)
-
+    app.run(host='0.0.0.0', port=port, debug=False)
