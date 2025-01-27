@@ -10,7 +10,75 @@
             margin: 0;
             padding: 0;
             background-color: #f4f4f9;
+            overflow-x: hidden;
         }
+        
+        .background-shapes {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .shape {
+            position: absolute;
+            background: rgba(0, 123, 255, 0.3);
+            border-radius: 50%;
+            transform: rotate(calc(360deg * var(--rotation)));
+            animation: float 15s infinite ease-in-out;
+        }
+        
+        .shape:nth-child(1) {
+            width: 150px;
+            height: 150px;
+            top: 10%;
+            left: 20%;
+        }
+
+        .shape:nth-child(2) {
+            width: 200px;
+            height: 200px;
+            top: 50%;
+            left: 5%;
+            background: rgba(220, 53, 69, 0.3);
+        }
+
+        .shape:nth-child(3) {
+            width: 300px;
+            height: 300px;
+            top: 20%;
+            left: 70%;
+            background: rgba(40, 167, 69, 0.3);
+        }
+
+        .shape:nth-child(4) {
+            width: 100px;
+            height: 100px;
+            top: 80%;
+            left: 80%;
+            background: rgba(255, 193, 7, 0.3);
+        }
+
+        .shape:nth-child(5) {
+            width: 200px;
+            height: 200px;
+            top: 60%;
+            left: 50%;
+            background: rgba(111, 66, 193, 0.3);
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(calc(360deg * var(--rotation)));
+            }
+            50% {
+                transform: translateY(-20px) rotate(calc(360deg * var(--rotation)));
+            }
+        }
+
         .container {
             max-width: 600px;
             margin: 30px auto;
@@ -18,11 +86,15 @@
             background: #fff;
             border-radius: 5px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
         }
+        
         h1, h2 {
             text-align: center;
             color: #333;
         }
+        
         textarea {
             width: 100%;
             height: 100px;
@@ -31,6 +103,7 @@
             border: 1px solid #ddd;
             border-radius: 4px;
         }
+        
         button {
             width: 100%;
             padding: 10px;
@@ -40,13 +113,25 @@
             color: white;
             font-size: 16px;
             cursor: pointer;
+            transition: background-color 0.3s ease;
         }
+        
         button:hover {
             background-color: #0056b3;
         }
+
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
         .admin-section {
             margin-top: 20px;
         }
+        
         .idea {
             display: flex;
             justify-content: space-between;
@@ -57,6 +142,7 @@
             border-radius: 4px;
             border: 1px solid #ddd;
         }
+        
         .delete-btn {
             background: #dc3545;
             color: white;
@@ -64,13 +150,23 @@
             padding: 5px 10px;
             border-radius: 4px;
             cursor: pointer;
+            transition: background-color 0.3s ease;
         }
+        
         .delete-btn:hover {
             background: #c82333;
         }
     </style>
 </head>
 <body>
+    <div class="background-shapes">
+        <div class="shape" style="--rotation: 0.1;"></div>
+        <div class="shape" style="--rotation: 0.3;"></div>
+        <div class="shape" style="--rotation: 0.5;"></div>
+        <div class="shape" style="--rotation: 0.7;"></div>
+        <div class="shape" style="--rotation: 0.9;"></div>
+    </div>
+
     <div class="container">
         <h1>Приём идей и предложений</h1>
         <textarea id="ideaInput" placeholder="Введите вашу идею или предложение..."></textarea>
@@ -84,14 +180,11 @@
             <div id="ideasList"></div>
         </div>
     </div>
+
     <script>
-        // Вставляем ваш хостинг URL прямо в код
         const serverUrl = "https://school450-project-1xdh.onrender.com"; 
+        const adminPassword = "12345";
 
-        // Код администратора
-        const adminPassword = "12345"; // Ваш установленный пароль администратора
-
-        // Отправка новой идеи
         async function submitIdea() {
             const ideaInput = document.getElementById('ideaInput');
             const idea = ideaInput.value.trim();
@@ -118,7 +211,6 @@
             }
         }
 
-        // Авторизация администратора
         function loginAdmin() {
             const code = document.getElementById('adminCode').value;
             if (code === adminPassword) {
@@ -129,7 +221,6 @@
             }
         }
 
-        // Получение списка идей
         async function fetchIdeas() {
             try {
                 const response = await fetch(`${serverUrl}/ideas`);
@@ -151,7 +242,6 @@
             }
         }
 
-        // Удаление идеи
         async function deleteIdea(id) {
             try {
                 const response = await fetch(`${serverUrl}/ideas/${id}`, { method: "DELETE" });
