@@ -3,114 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Приём идей и предложений</title>
+    <title>Приём идей и предложений - Школа 450</title>
     <style>
+        /* Общие стили */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #fdfdfd;
-            overflow: hidden;
-            position: relative;
+            background-color: #f4f4f9;
+            overflow-x: hidden;
         }
         .container {
-            max-width: 500px;
-            margin: 50px auto;
+            max-width: 600px;
+            margin: 30px auto;
             padding: 20px;
-            background: linear-gradient(135deg, #fff, #f0f0f5);
-            border-radius: 15px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-            position: relative;
-            z-index: 10;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
         h1, h2 {
             text-align: center;
             color: #333;
         }
-        textarea, input {
+        textarea, input[type="password"] {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             margin: 10px 0;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
         }
         button {
             width: 100%;
-            padding: 14px;
-            background: linear-gradient(90deg, #007bff, #00d2ff);
+            padding: 10px;
+            background: linear-gradient(90deg, #007bff, #00d4ff);
             border: none;
-            border-radius: 10px;
+            border-radius: 6px;
             color: white;
-            font-size: 18px;
-            font-weight: bold;
+            font-size: 16px;
             cursor: pointer;
-            transition: 0.3s;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: background 0.3s;
         }
         button:hover {
-            background: linear-gradient(90deg, #0056b3, #0090cc);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(90deg, #0056b3, #00aaff);
         }
         .admin-section {
             margin-top: 20px;
         }
-        @keyframes fall {
-            0% {
-                transform: translateY(-100vh) rotate(0deg);
-                opacity: 0.5;
-            }
-            100% {
-                transform: translateY(110vh) rotate(360deg);
-                opacity: 0;
-            }
+        .ideas-container {
+            max-height: 300px; /* Ограничение высоты блока */
+            overflow-y: auto; /* Прокрутка */
+            padding: 10px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 6px;
         }
-        .floating-square {
+        .idea {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 6px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+        .idea:hover {
+            transform: translateY(-3px);
+        }
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        /* Фоновые квадратики */
+        .bg-square {
             position: absolute;
-            border-radius: 10px;
-            opacity: 0.8;
-            animation: fall 12s linear infinite;
-        }
-        .floating-square:nth-child(1) {
-            background: rgba(0, 123, 255, 0.4);
+            background: rgba(0, 0, 0, 0.05);
             width: 100px;
             height: 100px;
-            left: 5%;
-            animation-duration: 8s;
-            animation-delay: 0s;
+            transform: rotate(45deg);
+            animation: float 10s infinite;
+            z-index: -1;
         }
-        .floating-square:nth-child(2) {
-            background: rgba(255, 0, 150, 0.4);
-            width: 120px;
-            height: 120px;
-            left: 70%;
-            animation-duration: 12s;
+        .bg-square:nth-child(1) {
+            top: 10%;
+            left: 15%;
+            background-color: #ffeaa7;
+        }
+        .bg-square:nth-child(2) {
+            top: 30%;
+            right: 10%;
+            background-color: #74b9ff;
             animation-delay: 2s;
         }
-        .floating-square:nth-child(3) {
-            background: rgba(0, 255, 100, 0.4);
-            width: 80px;
-            height: 80px;
-            left: 40%;
-            animation-duration: 10s;
+        .bg-square:nth-child(3) {
+            bottom: 15%;
+            left: 20%;
+            background-color: #fab1a0;
             animation-delay: 4s;
         }
-        .floating-square:nth-child(4) {
-            background: rgba(255, 200, 0, 0.4);
-            width: 150px;
-            height: 150px;
-            left: 20%;
-            animation-duration: 15s;
+        .bg-square:nth-child(4) {
+            bottom: 10%;
+            right: 15%;
+            background-color: #a29bfe;
             animation-delay: 6s;
+        }
+
+        /* Анимация плавающих квадратов */
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(45deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(45deg);
+            }
+        }
+
+        /* Для мобильных устройств */
+        @media (max-width: 768px) {
+            .container {
+                width: 90%;
+                margin: 20px auto;
+            }
+            .bg-square {
+                width: 70px;
+                height: 70px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Фоновые разноцветные квадраты -->
-    <div class="floating-square"></div>
-    <div class="floating-square"></div>
-    <div class="floating-square"></div>
-    <div class="floating-square"></div>
+    <!-- Фоновые квадраты -->
+    <div class="bg-square"></div>
+    <div class="bg-square"></div>
+    <div class="bg-square"></div>
+    <div class="bg-square"></div>
 
     <div class="container">
         <h1>Приём идей и предложений</h1>
@@ -122,12 +159,12 @@
         <button onclick="loginAdmin()">Войти</button>
         <div id="adminSection" class="admin-section" style="display: none;">
             <h2>Заявки:</h2>
-            <div id="ideasList"></div>
+            <div id="ideasList" class="ideas-container"></div>
         </div>
     </div>
 
     <script>
-        const serverUrl = "https://school450-project-1xdh.onrender.com"; 
+        const serverUrl = "https://school450-project-1xdh.onrender.com";
         const adminPassword = "12345";
 
         async function submitIdea() {
@@ -137,14 +174,12 @@
                 alert("Пожалуйста, введите текст идеи.");
                 return;
             }
-
             try {
                 const response = await fetch(`${serverUrl}/ideas`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ idea })
                 });
-
                 if (response.ok) {
                     alert("Идея успешно отправлена!");
                     ideaInput.value = "";
@@ -170,14 +205,14 @@
             try {
                 const response = await fetch(`${serverUrl}/ideas`);
                 const ideas = await response.json();
-
                 const ideasList = document.getElementById('ideasList');
                 ideasList.innerHTML = "";
                 ideas.forEach(({ id, idea }) => {
                     const ideaElement = document.createElement('div');
+                    ideaElement.className = 'idea';
                     ideaElement.innerHTML = `
                         <div>${idea}</div>
-                        <button onclick="deleteIdea(${id})">Удалить</button>
+                        <button class="delete-btn" onclick="deleteIdea(${id})">Удалить</button>
                     `;
                     ideasList.appendChild(ideaElement);
                 });
