@@ -9,15 +9,15 @@
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
             background-color: #f8f9fa;
             overflow: hidden;
         }
 
         .container {
+            position: absolute;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
             text-align: center;
             padding: 20px;
             background: white;
@@ -70,7 +70,7 @@
         }
 
         .square {
-            border-radius: 15%; /* Скруглённые квадраты */
+            border-radius: 15%;
         }
 
         .star {
@@ -78,7 +78,7 @@
                 50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 
                 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%
             );
-            transform: rotate(var(--rotation, 0deg)); /* Поворот для плавности */
+            transform: rotate(var(--rotation, 0deg));
         }
 
         @keyframes fall {
@@ -122,7 +122,7 @@
             ];
 
             // Генерация фигур
-            for (let i = 0; i < 1; i++) { // Было 30, теперь 1
+            for (let i = 0; i < 4; i++) { // Было 30, теперь 4
                 const shape = document.createElement('div');
                 const size = 20 + Math.random() * 80; // Размер от 20px до 100px
 
