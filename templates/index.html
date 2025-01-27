@@ -1,97 +1,89 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Приём идей и предложений</title>
+    <title>Приём идей и предложений - Школа 450</title>
     <style>
-        /* Стили страницы */
+        /* Общие стили */
         body {
-            margin: 0;
             font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
             overflow: hidden;
         }
-
         .container {
-            position: absolute;
-            top: 15%;
-            left: 50%;
-            transform: translateX(-50%);
-            text-align: center;
+            max-width: 600px;
+            margin: 30px auto;
             padding: 20px;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-
-        input, button {
-            display: block;
-            width: 100%;
-            margin: 10px 0;
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ddd;
+            background: #fff;
             border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
-
+        h1, h2 {
+            text-align: center;
+            color: #333;
+        }
+        textarea, input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
         button {
-            background: #007bff;
-            color: white;
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(90deg, #007bff, #00d4ff);
             border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 16px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: background 0.3s;
         }
-
         button:hover {
-            background: #0056b3;
+            background: linear-gradient(90deg, #0056b3, #00aaff);
         }
 
-        /* Анимация фигур */
+        /* Плавающие фигуры */
         .falling-shape {
-            position: fixed;
-            top: -50px;
-            width: var(--size, 20px);
-            height: var(--size, 20px);
-            left: var(--x-pos, 50%);
-            background-color: var(--color, #ccc);
-            opacity: 0.8;
-            z-index: 1;
-            animation: fall linear infinite, rotate 3s infinite linear;
+            position: absolute;
+            animation: fall 7s linear infinite, rotate 5s linear infinite;
+            z-index: -1;
         }
-
         .circle {
             border-radius: 50%;
         }
-
         .square {
-            border-radius: 15%;
+            transform: rotate(45deg);
         }
-
         .star {
             clip-path: polygon(
-                50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 
-                50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%
+                50% 5%, 65% 35%, 95% 35%, 
+                75% 55%, 85% 85%, 50% 70%, 
+                15% 85%, 25% 55%, 5% 35%, 
+                35% 35%
             );
-            transform: rotate(var(--rotation, 0deg));
         }
 
+        /* Анимации */
         @keyframes fall {
             0% {
-                transform: translateY(-100px);
+                top: -10%;
+                left: calc(10% + 80% * var(--x-pos));
+                opacity: 1;
+            }
+            90% {
                 opacity: 1;
             }
             100% {
-                transform: translateY(110vh);
+                top: 110%;
                 opacity: 0;
             }
         }
-
         @keyframes rotate {
             0% {
                 transform: rotate(0deg);
@@ -100,48 +92,131 @@
                 transform: rotate(360deg);
             }
         }
+
+        /* Для мобильных устройств */
+        @media (max-width: 768px) {
+            .container {
+                width: 90%;
+                margin: 20px auto;
+            }
+            .falling-shape {
+                width: 30px;
+                height: 30px;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Контейнер для контента -->
     <div class="container">
         <h1>Приём идей и предложений</h1>
-        <input type="text" placeholder="Введите вашу идею или предложение...">
-        <button>Отправить</button>
+        <textarea id="ideaInput" placeholder="Введите вашу идею или предложение..."></textarea>
+        <button onclick="submitIdea()">Отправить</button>
         <hr>
         <h2>Вход администратора</h2>
-        <input type="password" placeholder="Введите код администратора...">
-        <button>Войти</button>
+        <input type="password" id="adminCode" placeholder="Введите код администратора">
+        <button onclick="loginAdmin()">Войти</button>
+        <div id="adminSection" class="admin-section" style="display: none;">
+            <h2>Заявки:</h2>
+            <div id="ideasList" class="ideas-container"></div>
+        </div>
     </div>
 
     <script>
-        function createFallingShapes() {
-            const shapes = ['circle', 'square', 'star'];
-            const pastelColors = [
-                '#FFADAD', '#FFD6A5', '#FDFFB6', '#CAFFBF',
-                '#9BF6FF', '#A0C4FF', '#BDB2FF', '#FFC6FF'
-            ];
+        const serverUrl = "https://school450-project-1xdh.onrender.com";
+        const adminPassword = "12345";
 
-            // Генерация фигур
-            for (let i = 0; i < 1; i++) { // Было 30, теперь 1
-                const shape = document.createElement('div');
-                const size = 20 + Math.random() * 80; // Размер от 20px до 100px
-
-                shape.className = `falling-shape ${shapes[Math.floor(Math.random() * shapes.length)]}`;
-                shape.style.setProperty('--x-pos', Math.random() * 100 + '%');
-                shape.style.setProperty('--size', `${size}px`);
-                shape.style.setProperty('--color', pastelColors[Math.floor(Math.random() * pastelColors.length)]);
-                shape.style.animationDuration = `${4 + Math.random() * 3}s`; // Длительность падения
-                shape.style.animationDelay = `${Math.random()}s`;
-
-                document.body.appendChild(shape);
-
-                // Удаление после завершения анимации
-                shape.addEventListener('animationend', () => shape.remove());
+        async function submitIdea() {
+            const ideaInput = document.getElementById('ideaInput');
+            const idea = ideaInput.value.trim();
+            if (!idea) {
+                alert("Пожалуйста, введите текст идеи.");
+                return;
+            }
+            try {
+                const response = await fetch(`${serverUrl}/ideas`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ idea })
+                });
+                if (response.ok) {
+                    alert("Идея успешно отправлена!");
+                    ideaInput.value = "";
+                } else {
+                    alert("Ошибка при отправке идеи.");
+                }
+            } catch (error) {
+                alert("Не удалось соединиться с сервером.");
             }
         }
 
-        // Вызываем функцию с интервалом
-        setInterval(createFallingShapes, 1500);
+        function loginAdmin() {
+            const code = document.getElementById('adminCode').value;
+            if (code === adminPassword) {
+                document.getElementById('adminSection').style.display = 'block';
+                fetchIdeas();
+            } else {
+                alert("Неверный код администратора.");
+            }
+        }
+
+        async function fetchIdeas() {
+            try {
+                const response = await fetch(`${serverUrl}/ideas`);
+                const ideas = await response.json();
+                const ideasList = document.getElementById('ideasList');
+                ideasList.innerHTML = "";
+                ideas.forEach(({ id, idea }) => {
+                    const ideaElement = document.createElement('div');
+                    ideaElement.className = 'idea';
+                    ideaElement.innerHTML = `
+                        <div>${idea}</div>
+                        <button class="delete-btn" onclick="deleteIdea(${id})">Удалить</button>
+                    `;
+                    ideasList.appendChild(ideaElement);
+                });
+            } catch (error) {
+                alert("Не удалось загрузить идеи.");
+            }
+        }
+
+        async function deleteIdea(id) {
+            try {
+                const response = await fetch(`${serverUrl}/ideas/${id}`, { method: "DELETE" });
+                if (response.ok) {
+                    fetchIdeas();
+                } else {
+                    alert("Ошибка при удалении идеи.");
+                }
+            } catch (error) {
+                alert("Не удалось соединиться с сервером.");
+            }
+        }
+
+        // Генерация фигур
+        function createFallingShapes() {
+            const shapes = ['circle', 'square', 'star'];
+            const shape = document.createElement('div');
+            const size = Math.random() * 80 + 40; // Размер от 40 до 120px
+            shape.style.width = `${size}px`;
+            shape.style.height = `${size}px`;
+            shape.style.background = randomPastelColor();
+            shape.className = `falling-shape ${shapes[Math.floor(Math.random() * shapes.length)]}`;
+            shape.style.setProperty('--x-pos', Math.random());
+            shape.style.animationDuration = `${5 + Math.random() * 5}s`;
+            shape.style.left = `${Math.random() * 100}%`;
+            document.body.appendChild(shape);
+
+            // Удаление после завершения анимации
+            shape.addEventListener('animationend', () => shape.remove());
+        }
+
+        function randomPastelColor() {
+            const hue = Math.random() * 360;
+            return `hsl(${hue}, 70%, 85%)`;
+        }
+
+        setInterval(createFallingShapes, 2000);
     </script>
 </body>
 </html>
