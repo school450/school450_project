@@ -10,91 +10,24 @@
             margin: 0;
             padding: 0;
             background-color: #f4f4f9;
-            overflow-x: hidden;
-        }
-        
-        .background-shapes {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
             overflow: hidden;
+            position: relative;
         }
-        
-        .shape {
-            position: absolute;
-            background: rgba(0, 123, 255, 0.3);
-            border-radius: 50%;
-            transform: rotate(calc(360deg * var(--rotation)));
-            animation: float 15s infinite ease-in-out;
-        }
-        
-        .shape:nth-child(1) {
-            width: 150px;
-            height: 150px;
-            top: 10%;
-            left: 20%;
-        }
-
-        .shape:nth-child(2) {
-            width: 200px;
-            height: 200px;
-            top: 50%;
-            left: 5%;
-            background: rgba(220, 53, 69, 0.3);
-        }
-
-        .shape:nth-child(3) {
-            width: 300px;
-            height: 300px;
-            top: 20%;
-            left: 70%;
-            background: rgba(40, 167, 69, 0.3);
-        }
-
-        .shape:nth-child(4) {
-            width: 100px;
-            height: 100px;
-            top: 80%;
-            left: 80%;
-            background: rgba(255, 193, 7, 0.3);
-        }
-
-        .shape:nth-child(5) {
-            width: 200px;
-            height: 200px;
-            top: 60%;
-            left: 50%;
-            background: rgba(111, 66, 193, 0.3);
-        }
-
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0) rotate(calc(360deg * var(--rotation)));
-            }
-            50% {
-                transform: translateY(-20px) rotate(calc(360deg * var(--rotation)));
-            }
-        }
-
         .container {
+            position: relative;
             max-width: 600px;
             margin: 30px auto;
             padding: 20px;
-            background: #fff;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            position: relative;
-            z-index: 1;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+            backdrop-filter: blur(5px);
         }
-        
         h1, h2 {
             text-align: center;
             color: #333;
         }
-        
         textarea {
             width: 100%;
             height: 100px;
@@ -103,7 +36,6 @@
             border: 1px solid #ddd;
             border-radius: 4px;
         }
-        
         button {
             width: 100%;
             padding: 10px;
@@ -115,23 +47,12 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
-        
         button:hover {
             background-color: #0056b3;
         }
-
-        input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
         .admin-section {
             margin-top: 20px;
         }
-        
         .idea {
             display: flex;
             justify-content: space-between;
@@ -142,7 +63,6 @@
             border-radius: 4px;
             border: 1px solid #ddd;
         }
-        
         .delete-btn {
             background: #dc3545;
             color: white;
@@ -150,23 +70,89 @@
             padding: 5px 10px;
             border-radius: 4px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
         }
-        
         .delete-btn:hover {
             background: #c82333;
+        }
+
+        /* Анимация фона */
+        .background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .shape {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background-color: rgba(0, 0, 0, 0.2);
+            animation: float 10s infinite ease-in-out;
+            border-radius: 15%;
+        }
+        .shape:nth-child(1) {
+            top: 10%;
+            left: 20%;
+            background-color: rgba(255, 0, 0, 0.3);
+            animation-duration: 8s;
+            animation-delay: 0s;
+        }
+        .shape:nth-child(2) {
+            top: 50%;
+            left: 5%;
+            background-color: rgba(0, 255, 0, 0.3);
+            animation-duration: 12s;
+            animation-delay: 2s;
+        }
+        .shape:nth-child(3) {
+            top: 70%;
+            left: 80%;
+            background-color: rgba(0, 0, 255, 0.3);
+            animation-duration: 10s;
+            animation-delay: 4s;
+        }
+        .shape:nth-child(4) {
+            top: 40%;
+            left: 50%;
+            background-color: rgba(255, 255, 0, 0.3);
+            animation-duration: 14s;
+            animation-delay: 6s;
+        }
+        .shape:nth-child(5) {
+            top: 20%;
+            left: 70%;
+            background-color: rgba(0, 255, 255, 0.3);
+            animation-duration: 16s;
+            animation-delay: 8s;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            50% {
+                transform: translateY(20px) rotate(15deg);
+            }
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
         }
     </style>
 </head>
 <body>
-    <div class="background-shapes">
-        <div class="shape" style="--rotation: 0.1;"></div>
-        <div class="shape" style="--rotation: 0.3;"></div>
-        <div class="shape" style="--rotation: 0.5;"></div>
-        <div class="shape" style="--rotation: 0.7;"></div>
-        <div class="shape" style="--rotation: 0.9;"></div>
+    <!-- Декоративный анимированный фон -->
+    <div class="background">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
     </div>
 
+    <!-- Основное содержимое -->
     <div class="container">
         <h1>Приём идей и предложений</h1>
         <textarea id="ideaInput" placeholder="Введите вашу идею или предложение..."></textarea>
