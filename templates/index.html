@@ -196,27 +196,28 @@
         }
 
         // Генерация фигур
-        function createFallingShapes() {
-            const shapes = ['circle', 'square', 'star'];
-            for (let i = 0; i < 30; i++) {
-                const shape = document.createElement('div');
-                shape.className = `falling-shape ${shapes[Math.floor(Math.random() * shapes.length)]}`;
-                shape.style.setProperty('--x-pos', Math.random());
-                shape.style.background = `linear-gradient(135deg, ${randomColor()}, ${randomColor()})`;
-                shape.style.animationDuration = `${5 + Math.random() * 5}s`;
-                shape.style.left = `${Math.random() * 100}%`;
-                document.body.appendChild(shape);
+    function createFallingShapes() {
+        const shapes = ['circle', 'square', 'star'];
+        for (let i = 0; i < 8; i++) { // Было 30, теперь 8
+            const shape = document.createElement('div');
+            shape.className = `falling-shape ${shapes[Math.floor(Math.random() * shapes.length)]}`;
+            shape.style.setProperty('--x-pos', Math.random());
+            shape.style.background = `linear-gradient(135deg, ${randomColor()}, ${randomColor()})`;
+            shape.style.animationDuration = `${5 + Math.random() * 5}s`;
+            shape.style.left = `${Math.random() * 100}%`;
+            document.body.appendChild(shape);
 
-                // Удаление после завершения анимации
-                shape.addEventListener('animationend', () => shape.remove());
-            }
+            // Удаление после завершения анимации
+            shape.addEventListener('animationend', () => shape.remove());
         }
+    }
 
-        function randomColor() {
-            return `hsl(${Math.random() * 360}, 70%, 80%)`;
-        }
+    function randomColor() {
+        return `hsl(${Math.random() * 360}, 70%, 80%)`;
+    }
 
-        setInterval(createFallingShapes, 1000);
-    </script>
+    // Уменьшил количество фигур на единицу времени
+    setInterval(createFallingShapes, 1000);
+</script>
 </body>
 </html>
