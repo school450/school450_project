@@ -13,12 +13,14 @@
             overflow: hidden;
         }
         .container {
+            position: relative;
             max-width: 600px;
             margin: 30px auto;
             padding: 20px;
             background: #fff;
             border-radius: 10px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            z-index: 10;
         }
         h1, h2 {
             text-align: center;
@@ -50,6 +52,7 @@
             position: absolute;
             top: 0;
             left: 0;
+            z-index: 1;
         }
     </style>
 </head>
@@ -73,6 +76,7 @@
         const serverUrl = "https://school450-project-1xdh.onrender.com";
         const adminPassword = "12345";
         const maxShapes = 11;
+        const shapeColors = ["#b3e5fc", "#a2f78d", "#f4ff81", "#fee0f1", "#9966ff"];
 
         async function submitIdea() {
             const ideaInput = document.getElementById('ideaInput');
@@ -141,7 +145,7 @@
         }
 
         // Matter.js - создание физического мира
-        const { Engine, Render, Runner, World, Bodies } = Matter;
+        const { Engine, Render, Runner, World, Bodies, Body } = Matter;
 
         const engine = Engine.create();
         const world = engine.world;
@@ -175,12 +179,22 @@
         function addShape() {
             const size = Math.random() * 80 + 40;
             const x = Math.random() * window.innerWidth;
-            const type = Math.random() < 0.33 ? 'circle' : Math.random() < 0.5 ? 'square' : 'star';
-            const shape = Bodies.circle(x, -50, size / 2, {
-                render: {
-                    fillStyle: randomPastelColor(),
-                },
-            });
+            const type = Math.random() < 0.33 ? 'circle' : Math.random() < 0.66 ? 'square' : 'star';
+            let shape;
+
+            if (type === 'circle') {
+                shape = Bodies.circle(x, -50, size / 2, {
+                    render: { fillStyle: randomColor() },
+                });
+            } else if (type === 'square') {
+                shape = Bodies.rectangle(x, -50, size, size, {
+                    render: { fillStyle: randomColor() },
+                });
+            } else {
+                shape = Bodies.polygon(x, -50, 5, size / 2, {
+                    render: { fillStyle: randomColor() },
+                });
+            }
 
             shapes.push(shape);
             if (shapes.length > maxShapes) {
@@ -191,11 +205,10 @@
             World.add(world, shape);
         }
 
-        setInterval(addShape, 1000); // Новая фигура каждую секунду
+        setInterval(addShape, 1000);
 
-        function randomPastelColor() {
-            const hue = Math.random() * 360;
-            return `hsl(${hue}, 70%, 85%)`;
+        function randomColor() {
+            return shapeColors[Math.floor(Math.random() * shapeColors.length)];
         }
     </script>
 </body>
