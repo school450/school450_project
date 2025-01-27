@@ -12,15 +12,24 @@
             background-color: #f4f4f9;
             overflow: hidden;
         }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none; /* Чтобы canvas не блокировал ввод */
+        }
         .container {
             position: relative;
             max-width: 600px;
             margin: 30px auto;
             padding: 20px;
-            background: #fff;
+            background: rgba(255, 255, 255, 0.9); /* Полупрозрачный фон */
             border-radius: 10px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            z-index: 10;
+            z-index: 2; /* Контейнер над canvas */
         }
         h1, h2 {
             text-align: center;
@@ -33,6 +42,9 @@
             border: 1px solid #ddd;
             border-radius: 6px;
             box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.8); /* Прозрачный фон */
+            z-index: 3; /* Поля ввода над canvas */
+            position: relative;
         }
         button {
             width: 100%;
@@ -48,15 +60,10 @@
         button:hover {
             background: #0056b3;
         }
-        canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 1;
-        }
     </style>
 </head>
 <body>
+    <canvas></canvas>
     <div class="container">
         <h1>Приём идей и предложений</h1>
         <textarea id="ideaInput" placeholder="Введите вашу идею или предложение..."></textarea>
@@ -76,7 +83,7 @@
         const serverUrl = "https://school450-project-1xdh.onrender.com";
         const adminPassword = "12345";
         const maxShapes = 11;
-        const shapeColors = ["#b3e5fc", "#a2f78d", "#f4ff81", "#fee0f1", "#9966ff"];
+        const shapeColors = ["#b3e5fc", "#a2f78d", "#f4ff81", "#fee0f1", "#DEA9FF"];
 
         async function submitIdea() {
             const ideaInput = document.getElementById('ideaInput');
@@ -145,13 +152,14 @@
         }
 
         // Matter.js - создание физического мира
-        const { Engine, Render, Runner, World, Bodies, Body } = Matter;
+        const { Engine, Render, Runner, World, Bodies } = Matter;
 
         const engine = Engine.create();
         const world = engine.world;
 
+        const canvas = document.querySelector('canvas');
         const render = Render.create({
-            element: document.body,
+            canvas,
             engine: engine,
             options: {
                 width: window.innerWidth,
@@ -177,7 +185,7 @@
         // Добавление падающих фигур
         const shapes = [];
         function addShape() {
-            const size = Math.random() * 85 + 30;
+            const size = Math.random() * 90 + 20;
             const x = Math.random() * window.innerWidth;
             const type = Math.random() < 0.33 ? 'circle' : Math.random() < 0.66 ? 'square' : 'star';
             let shape;
