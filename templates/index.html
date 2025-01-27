@@ -11,7 +11,7 @@
             margin: 0;
             padding: 0;
             background-color: #f4f4f9;
-            overflow-x: hidden;
+            overflow: hidden;
         }
         .container {
             max-width: 600px;
@@ -47,85 +47,51 @@
         button:hover {
             background: linear-gradient(90deg, #0056b3, #00aaff);
         }
-        .admin-section {
-            margin-top: 20px;
-        }
-        .ideas-container {
-            max-height: 300px; /* Ограничение высоты блока */
-            overflow-y: auto; /* Прокрутка */
-            padding: 10px;
-            background: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-        }
-        .idea {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #fff;
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 6px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s;
-        }
-        .idea:hover {
-            transform: translateY(-3px);
-        }
-        .delete-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        .delete-btn:hover {
-            background: #c82333;
-        }
 
-        /* Фоновые квадратики */
-        .bg-square {
+        /* Плавающие фигуры */
+        .falling-shape {
             position: absolute;
-            background: rgba(0, 0, 0, 0.05);
-            width: 100px;
-            height: 100px;
-            transform: rotate(45deg);
-            animation: float 10s infinite;
+            width: 50px;
+            height: 50px;
+            animation: fall 10s linear infinite, rotate 3s linear infinite;
             z-index: -1;
         }
-        .bg-square:nth-child(1) {
-            top: 10%;
-            left: 15%;
-            background-color: #ffeaa7;
+        .circle {
+            border-radius: 50%;
         }
-        .bg-square:nth-child(2) {
-            top: 30%;
-            right: 10%;
-            background-color: #74b9ff;
-            animation-delay: 2s;
+        .square {
+            transform: rotate(45deg);
         }
-        .bg-square:nth-child(3) {
-            bottom: 15%;
-            left: 20%;
-            background-color: #fab1a0;
-            animation-delay: 4s;
-        }
-        .bg-square:nth-child(4) {
-            bottom: 10%;
-            right: 15%;
-            background-color: #a29bfe;
-            animation-delay: 6s;
+        .star {
+            clip-path: polygon(
+                50% 0%, 61% 35%, 98% 35%, 
+                68% 57%, 79% 91%, 50% 70%, 
+                21% 91%, 32% 57%, 2% 35%, 
+                39% 35%
+            );
         }
 
-        /* Анимация плавающих квадратов */
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0) rotate(45deg);
+        /* Анимации */
+        @keyframes fall {
+            0% {
+                top: -10%;
+                left: calc(10% + 80% * var(--x-pos));
+                opacity: 1;
             }
-            50% {
-                transform: translateY(-20px) rotate(45deg);
+            90% {
+                opacity: 1;
+            }
+            100% {
+                top: 110%;
+                opacity: 0;
+            }
+        }
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
             }
         }
 
@@ -135,20 +101,15 @@
                 width: 90%;
                 margin: 20px auto;
             }
-            .bg-square {
-                width: 70px;
-                height: 70px;
+            .falling-shape {
+                width: 30px;
+                height: 30px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Фоновые квадраты -->
-    <div class="bg-square"></div>
-    <div class="bg-square"></div>
-    <div class="bg-square"></div>
-    <div class="bg-square"></div>
-
+    <!-- Контейнер для контента -->
     <div class="container">
         <h1>Приём идей и предложений</h1>
         <textarea id="ideaInput" placeholder="Введите вашу идею или предложение..."></textarea>
@@ -233,6 +194,29 @@
                 alert("Не удалось соединиться с сервером.");
             }
         }
+
+        // Генерация фигур
+        function createFallingShapes() {
+            const shapes = ['circle', 'square', 'star'];
+            for (let i = 0; i < 30; i++) {
+                const shape = document.createElement('div');
+                shape.className = `falling-shape ${shapes[Math.floor(Math.random() * shapes.length)]}`;
+                shape.style.setProperty('--x-pos', Math.random());
+                shape.style.background = `linear-gradient(135deg, ${randomColor()}, ${randomColor()})`;
+                shape.style.animationDuration = `${5 + Math.random() * 5}s`;
+                shape.style.left = `${Math.random() * 100}%`;
+                document.body.appendChild(shape);
+
+                // Удаление после завершения анимации
+                shape.addEventListener('animationend', () => shape.remove());
+            }
+        }
+
+        function randomColor() {
+            return `hsl(${Math.random() * 360}, 70%, 80%)`;
+        }
+
+        setInterval(createFallingShapes, 1000);
     </script>
 </body>
 </html>
