@@ -180,6 +180,16 @@
         Render.run(render);
         const runner = Runner.create();
         Runner.run(runner, engine);
+        
+        // Добавление границ экрана
+        const boundaries = [
+            Bodies.rectangle(window.innerWidth / 2, -50, window.innerWidth, 100, { isStatic: true }),
+            Bodies.rectangle(window.innerWidth / 2, window.innerHeight + 50, window.innerWidth, 100, { isStatic: true }),
+            Bodies.rectangle(-50, window.innerHeight / 2, 100, window.innerHeight, { isStatic: true }),
+            Bodies.rectangle(window.innerWidth + 50, window.innerHeight / 2, 100, window.innerHeight, { isStatic: true }),
+        ];
+        World.add(world, boundaries);
+
 
         const shapes = [];
         function addShape() {
