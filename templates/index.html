@@ -19,8 +19,9 @@
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 1; /* Canvas ниже всех элементов */
+            z-index: 5; /* Canvas теперь выше всех */
             pointer-events: none; /* Canvas не блокирует клики */
+            background: transparent;
         }
         .container {
             position: relative;
@@ -30,7 +31,7 @@
             background: rgba(255, 255, 255, 0.95); /* Лёгкая прозрачность */
             border-radius: 10px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            z-index: 2; /* Контейнер над canvas */
+            z-index: 3; /* Контейнер выше фона, но ниже фигур */
         }
         h1, h2 {
             text-align: center;
@@ -43,8 +44,8 @@
             border: 1px solid #ddd;
             border-radius: 6px;
             box-sizing: border-box;
-            background: rgba(255, 255, 255, 0.8); /* Прозрачный фон */
-            z-index: 3; /* Поля ввода над canvas */
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 4;
             position: relative;
         }
         button {
@@ -63,7 +64,7 @@
         }
         #ideasList {
             max-height: 300px;
-            overflow-y: auto; /* Прокрутка для списка идей */
+            overflow-y: auto;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 6px;
@@ -203,22 +204,16 @@
                 shape = Bodies.circle(x, -50, size / 2, {
                     render: { fillStyle: randomColor() },
                 });
-            } else if (type === 'square') {
-                shape = Bodies.rectangle(x, -50, size, size, {
-                    render: { fillStyle: randomColor() },
-                });
             } else {
-                shape = Bodies.polygon(x, -50, 5, size / 2, {
+                shape = Bodies.rectangle(x, -50, size, size, {
                     render: { fillStyle: randomColor() },
                 });
             }
 
             shapes.push(shape);
             if (shapes.length > maxShapes) {
-                const oldShape = shapes.shift();
-                World.remove(world, oldShape);
+                World.remove(world, shapes.shift());
             }
-
             World.add(world, shape);
         }
 
