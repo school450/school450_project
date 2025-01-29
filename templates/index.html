@@ -11,27 +11,26 @@
             margin: 0;
             padding: 0;
             background-color: #f4f4f9;
-            overflow-x: hidden; /* Запрет горизонтальной прокрутки */
+            overflow-x: hidden;
         }
         canvas {
-            position: fixed; /* Закрепляем canvas */
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 5; /* Canvas теперь выше всех */
-            pointer-events: none; /* Canvas не блокирует клики */
-            background: transparent;
+            z-index: 1;
+            pointer-events: none;
         }
         .container {
             position: relative;
             max-width: 600px;
             margin: 30px auto;
             padding: 20px;
-            background: rgba(255, 255, 255, 0.95); /* Лёгкая прозрачность */
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 10px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            z-index: 3; /* Контейнер выше фона, но ниже фигур */
+            z-index: 2;
         }
         h1, h2 {
             text-align: center;
@@ -45,7 +44,6 @@
             border-radius: 6px;
             box-sizing: border-box;
             background: rgba(255, 255, 255, 0.8);
-            z-index: 4;
             position: relative;
         }
         button {
@@ -183,29 +181,25 @@
         const runner = Runner.create();
         Runner.run(runner, engine);
 
-        // Добавление границ экрана
-        const boundaries = [
-            Bodies.rectangle(window.innerWidth / 2, -50, window.innerWidth, 100, { isStatic: true }),
-            Bodies.rectangle(window.innerWidth / 2, window.innerHeight + 50, window.innerWidth, 100, { isStatic: true }),
-            Bodies.rectangle(-50, window.innerHeight / 2, 100, window.innerHeight, { isStatic: true }),
-            Bodies.rectangle(window.innerWidth + 50, window.innerHeight / 2, 100, window.innerHeight, { isStatic: true }),
-        ];
-        World.add(world, boundaries);
-
-        // Добавление падающих фигур
         const shapes = [];
         function addShape() {
             const size = Math.random() * 90 + 20;
             const x = Math.random() * window.innerWidth;
-            const type = Math.random() < 0.33 ? 'circle' : Math.random() < 0.66 ? 'square' : 'star';
-            let shape;
+            const type = Math.random();
 
-            if (type === 'circle') {
+            let shape;
+            if (type < 0.33) {
                 shape = Bodies.circle(x, -50, size / 2, {
                     render: { fillStyle: randomColor() },
                 });
-            } else {
+            } else if (type < 0.66) {
                 shape = Bodies.rectangle(x, -50, size, size, {
+                    chamfer: { radius: 10 }, // Скругление углов квадрата
+                    render: { fillStyle: randomColor() },
+                });
+            } else {
+                shape = Bodies.polygon(x, -50, 5, size / 2, {
+                    chamfer: { radius: 6 }, // Скругление углов звезды
                     render: { fillStyle: randomColor() },
                 });
             }
@@ -214,6 +208,7 @@
             if (shapes.length > maxShapes) {
                 World.remove(world, shapes.shift());
             }
+
             World.add(world, shape);
         }
 
