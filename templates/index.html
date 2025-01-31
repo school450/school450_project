@@ -74,7 +74,7 @@
         <h1>Приём идей и предложений</h1>
         <textarea id="ideaInput" placeholder="Введите вашу идею или предложение..."></textarea>
         <button onclick="submitIdea()">Отправить</button>
-        <hr>
+        
         <h2>Вход администратора</h2>
         <input type="password" id="adminCode" placeholder="Введите код администратора">
         <button onclick="loginAdmin()">Войти</button>
@@ -179,7 +179,7 @@
         const runner = Runner.create();
         Runner.run(runner, engine);
         
-        // Добавление границ экрана
+        // Границы экрана
         const boundaries = [
             Bodies.rectangle(window.innerWidth / 2, -50, window.innerWidth, 100, { isStatic: true }),
             Bodies.rectangle(window.innerWidth / 2, window.innerHeight + 50, window.innerWidth, 100, { isStatic: true }),
@@ -192,24 +192,14 @@
         function addShape() {
             const size = Math.random() * 80 + 30;
             const x = Math.random() * window.innerWidth;
-            const type = Math.random();
+            const velocityX = (Math.random() - 0.5) * 4; // Рандомный разброс влево/вправо
 
-            let shape;
-            if (type < 0.33) {
-                shape = Bodies.circle(x, -50, size / 2, {
-                    render: { fillStyle: randomColor() },
-                });
-            } else if (type < 0.66) {
-                shape = Bodies.rectangle(x, -50, size, size, {
-                    chamfer: { radius: 10 }, // Скругление углов квадрата
-                    render: { fillStyle: randomColor() },
-                });
-            } else {
-                shape = Bodies.polygon(x, -50, 5, size / 2, {
-                    chamfer: { radius: 6 }, // Скругление углов звезды
-                    render: { fillStyle: randomColor() },
-                });
-            }
+            let shape = Bodies.circle(x, -50, size / 2, {
+                render: { fillStyle: randomColor() },
+                frictionAir: 0.02,
+            });
+
+            shape.force.x = velocityX * 0.001; // Применяем начальную силу
 
             shapes.push(shape);
             if (shapes.length > maxShapes) {
@@ -224,6 +214,12 @@
         function randomColor() {
             return shapeColors[Math.floor(Math.random() * shapeColors.length)];
         }
+
+        // Остановка анимации при вводе текста
+        document.querySelectorAll("textarea, input").forEach(input => {
+            input.addEventListener("focus", () => Runner.stop(runner));
+            input.addEventListener("blur", () => Runner.run(runner, engine));
+        });
     </script>
 </body>
 </html>
