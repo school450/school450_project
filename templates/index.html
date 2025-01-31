@@ -193,19 +193,29 @@
 
         const shapes = [];
         function addShape() {
-            if (animationPaused) return;
-
             const size = Math.random() * 80 + 30;
             const x = Math.random() * window.innerWidth;
-            const angle = (Math.random() - 0.5) * 0.4; // Рандомное отклонение падения
+            const velocityX = (Math.random() - 0.5) * 6; // Усиливаем разброс влево/вправо
 
             let shape;
-            if (Math.random() < 0.33) {
-                shape = Bodies.circle(x, -50, size / 2, { render: { fillStyle: randomColor() } });
-            } else if (Math.random() < 0.66) {
-                shape = Bodies.rectangle(x, -50, size, size, { render: { fillStyle: randomColor() } });
+            const type = Math.random();
+            if (type < 0.33) {
+                shape = Bodies.circle(x, -50, size / 2, {
+                    render: { fillStyle: randomColor() },
+                    frictionAir: 0.02,
+                });
+            } else if (type < 0.66) {
+                shape = Bodies.rectangle(x, -50, size, size, {
+                    chamfer: { radius: 10 },
+                    render: { fillStyle: randomColor() },
+                    frictionAir: 0.02,
+                });
             } else {
-                shape = Bodies.polygon(x, -50, 5, size / 2, { render: { fillStyle: randomColor() } });
+                shape = Bodies.polygon(x, -50, 5, size / 2, {
+                    chamfer: { radius: 6 },
+                    render: { fillStyle: randomColor() },
+                    frictionAir: 0.02,
+                });
             }
 
             Matter.Body.setAngle(shape, angle);
