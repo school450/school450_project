@@ -14,14 +14,14 @@
             overflow-x: visible;
         }
         canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 9999999; /* Повышенный z-index, чтобы фигуры были над окнами */
-            pointer-events: none;
-        }
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Отправляем canvas на задний план */
+    pointer-events: none;
+}
         .container {
             position: relative;
             max-width: 600px;
