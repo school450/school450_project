@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Приём идей и предложений - Школа 450</title>
     <style>
-        /* Общие стили */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -19,15 +18,15 @@
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1; /* Убираем из потока, чтобы не мешал */
-            pointer-events: none; /* Полностью отключаем взаимодействие */
+            z-index: 1;
+            pointer-events: none;
         }
         .container {
             position: relative;
             max-width: 600px;
             margin: 30px auto;
             padding: 20px;
-            z-index: 10; /* Поднимаем контейнер выше анимации */
+            z-index: 10;
         }
         h1, h2 {
             text-align: center;
@@ -53,8 +52,6 @@
             font-size: 16px;
             cursor: pointer;
             transition: background 0.3s;
-            position: relative;
-            z-index: 11; /* Кнопки точно поверх всего */
         }
         button:hover {
             background: #4B89B0;
@@ -71,16 +68,14 @@
     </style>
 </head>
 <body>
+    <canvas></canvas>
     <div class="container">
-        <canvas></canvas> <!-- Canvas теперь внутри контейнера -->
         <h1>Приём идей и предложений</h1>
-        <textarea id="ideaInput" placeholder="Введите вашу идею или предложение..."></textarea>
+        <textarea id="ideaInput" placeholder="Введите вашу идею или предложение..." onfocus="pauseAnimation()" onblur="resumeAnimation()"></textarea>
         <button onclick="submitIdea()">Отправить</button>
-        
         <h2>Вход администратора</h2>
         <input type="password" id="adminCode" placeholder="Введите код администратора">
         <button onclick="loginAdmin()">Войти</button>
-
         <div id="adminSection" style="display: none;">
             <h2>Заявки:</h2>
             <div id="ideasList"></div>
@@ -183,6 +178,7 @@
         const runner = Runner.create();
         Runner.run(runner, engine);
         
+        // Границы экрана
         const boundaries = [
             Bodies.rectangle(window.innerWidth / 2, -50, window.innerWidth, 100, { isStatic: true }),
             Bodies.rectangle(window.innerWidth / 2, window.innerHeight + 50, window.innerWidth, 100, { isStatic: true }),
@@ -193,28 +189,24 @@
 
         const shapes = [];
         function addShape() {
+            if (animationPaused) return;
+
             const size = Math.random() * 80 + 30;
             const x = Math.random() * window.innerWidth;
-            const velocityX = (Math.random() - 0.5) * 6; // Усиливаем разброс влево/вправо
+            const angle = (Math.random() - 0.5) * 0.6; // Рандомное отклонение падения
 
             let shape;
-            const type = Math.random();
-            if (type < 0.33) {
-                shape = Bodies.circle(x, -50, size / 2, {
-                    render: { fillStyle: randomColor() },
-                    frictionAir: 0.02,
-                });
-            } else if (type < 0.66) {
+            if (Math.random() < 0.33) {
+                shape = Bodies.circle(x, -50, size / 2, { render: { fillStyle: randomColor() } });
+            } else if (Math.random() < 0.66) {
                 shape = Bodies.rectangle(x, -50, size, size, {
                     chamfer: { radius: 10 },
-                    render: { fillStyle: randomColor() },
-                    frictionAir: 0.02,
+                    render: { fillStyle: randomColor() }
                 });
             } else {
                 shape = Bodies.polygon(x, -50, 5, size / 2, {
                     chamfer: { radius: 6 },
-                    render: { fillStyle: randomColor() },
-                    frictionAir: 0.02,
+                    render: { fillStyle: randomColor() }
                 });
             }
 
@@ -231,8 +223,13 @@
             return shapeColors[Math.floor(Math.random() * shapeColors.length)];
         }
 
-        document.addEventListener('focusin', () => animationPaused = true);
-        document.addEventListener('focusout', () => animationPaused = false);
+        function pauseAnimation() {
+            animationPaused = true;
+        }
+
+        function resumeAnimation() {
+            animationPaused = false;
+        }
     </script>
 </body>
 </html>
