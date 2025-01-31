@@ -91,72 +91,6 @@
         const maxShapes = 11;
         const shapeColors = ["#1E90FF", "#a2f78d", "#f4ff81", "#FC89AC", "#9074db"];
 
-        async function submitIdea() {
-            const ideaInput = document.getElementById('ideaInput');
-            const idea = ideaInput.value.trim();
-            if (!idea) {
-                alert("Пожалуйста, введите текст идеи.");
-                return;
-            }
-            try {
-                const response = await fetch(`${serverUrl}/ideas`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ idea })
-                });
-                if (response.ok) {
-                    alert("Идея успешно отправлена!");
-                    ideaInput.value = "";
-                } else {
-                    alert("Ошибка при отправке идеи.");
-                }
-            } catch (error) {
-                alert("Не удалось соединиться с сервером.");
-            }
-        }
-
-        function loginAdmin() {
-            const code = document.getElementById('adminCode').value;
-            if (code === adminPassword) {
-                document.getElementById('adminSection').style.display = 'block';
-                fetchIdeas();
-            } else {
-                alert("Неверный код администратора.");
-            }
-        }
-
-        async function fetchIdeas() {
-            try {
-                const response = await fetch(`${serverUrl}/ideas`);
-                const ideas = await response.json();
-                const ideasList = document.getElementById('ideasList');
-                ideasList.innerHTML = "";
-                ideas.forEach(({ id, idea }) => {
-                    const ideaElement = document.createElement('div');
-                    ideaElement.innerHTML = `
-                        <div>${idea}</div>
-                        <button onclick="deleteIdea(${id})">Удалить</button>
-                    `;
-                    ideasList.appendChild(ideaElement);
-                });
-            } catch (error) {
-                alert("Не удалось загрузить идеи.");
-            }
-        }
-
-        async function deleteIdea(id) {
-            try {
-                const response = await fetch(`${serverUrl}/ideas/${id}`, { method: "DELETE" });
-                if (response.ok) {
-                    fetchIdeas();
-                } else {
-                    alert("Ошибка при удалении идеи.");
-                }
-            } catch (error) {
-                alert("Не удалось соединиться с сервером.");
-            }
-        }
-
         // Matter.js - создание физического мира
         const { Engine, Render, Runner, World, Bodies } = Matter;
 
@@ -192,14 +126,31 @@
         function addShape() {
             const size = Math.random() * 80 + 30;
             const x = Math.random() * window.innerWidth;
-            const velocityX = (Math.random() - 0.5) * 4; // Рандомный разброс влево/вправо
+            const velocityX = (Math.random() - 0.5) * 6; // Усиливаем разброс влево/вправо
 
-            let shape = Bodies.circle(x, -50, size / 2, {
-                render: { fillStyle: randomColor() },
-                frictionAir: 0.02,
-            });
+            let shape;
+            const type = Math.random();
+            if (type < 0.33) {
+                shape = Bodies.circle(x, -50, size / 2, {
+                    render: { fillStyle: randomColor() },
+                    frictionAir: 0.02,
+                });
+            } else if (type < 0.66) {
+                shape = Bodies.rectangle(x, -50, size, size, {
+                    chamfer: { radius: 10 },
+                    render: { fillStyle: randomColor() },
+                    frictionAir: 0.02,
+                });
+            } else {
+                shape = Bodies.polygon(x, -50, 5, size / 2, {
+                    chamfer: { radius: 6 },
+                    render: { fillStyle: randomColor() },
+                    frictionAir: 0.02,
+                });
+            }
 
-            shape.force.x = velocityX * 0.001; // Применяем начальную силу
+            // Добавляем начальное горизонтальное ускорение
+            Matter.Body.setVelocity(shape, { x: velocityX, y: 0 });
 
             shapes.push(shape);
             if (shapes.length > maxShapes) {
