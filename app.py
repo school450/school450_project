@@ -2,21 +2,19 @@ from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import psycopg2
 import os
+import jwt
+import datetime
 
-# Создание приложения Flask
 app = Flask(__name__)
-
-# Настройки CORS
 CORS(app, resources={r"/ideas/*": {"origins": "*"}})
 
-# Получение URL базы данных из переменной окружения
 DATABASE_URL = os.environ.get("DATABASE_URL")
+SECRET_KEY = os.environ.get("SECRET_KEY", "supersecret")  # Секретный ключ для токенов
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "12345")  # Пароль админа (убираем его из HTML!)
 
-# Функция для подключения к базе данных
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL)
 
-# Инициализация базы данных
 def init_db():
     try:
         conn = get_db_connection()
@@ -35,12 +33,46 @@ def init_db():
 
 init_db()
 
-# Эндпоинт для рендеринга HTML-страницы
 @app.route('/', methods=['GET'])
 def home_page():
     return render_template('index.html')
 
-# Эндпоинт для получения всех идей
+@app.route('/admin/login', methods=['POST'])
+def admin_login():
+    data = request.json
+    password = data.get("password")
+
+    if password != ADMIN_PASSWORD:
+        return jsonify({"error": "Неверный пароль"}), 401
+
+    token = jwt.encode(
+        {"role": "admin", "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1)},
+        SECRET_KEY,
+        algorithm="HS256"
+    )
+
+    return jsonify({"token": token})
+
+def authenticate(f):
+    def wrapper(*args, **kwargs):
+        token = request.headers.get("Authorization")
+        if not token:
+            return jsonify({"error": "Нет доступа"}), 403
+
+        try:
+            decoded = jwt.decode(token.split(" ")[1], SECRET_KEY, algorithms=["HS256"])
+            if decoded.get("role") != "admin":
+                raise jwt.InvalidTokenError
+        except jwt.ExpiredSignatureError:
+            return jsonify({"error": "Токен истёк"}), 403
+        except jwt.InvalidTokenError:
+            return jsonify({"error": "Недействительный токен"}), 403
+
+        return f(*args, **kwargs)
+
+    wrapper.__name__ = f.__name__
+    return wrapper
+
 @app.route('/ideas', methods=['GET'])
 def get_ideas():
     try:
@@ -54,7 +86,6 @@ def get_ideas():
     finally:
         conn.close()
 
-# Эндпоинт для добавления новой идеи
 @app.route('/ideas', methods=['POST'])
 def add_idea():
     data = request.json
@@ -73,8 +104,8 @@ def add_idea():
     finally:
         conn.close()
 
-# Эндпоинт для удаления идеи
 @app.route('/ideas/<int:idea_id>', methods=['DELETE'])
+@authenticate
 def delete_idea(idea_id):
     try:
         conn = get_db_connection()
@@ -87,8 +118,6 @@ def delete_idea(idea_id):
     finally:
         conn.close()
 
-# Точка входа
 if __name__ == "__main__":
-    # Устанавливаем порт из переменной окружения для Render
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
