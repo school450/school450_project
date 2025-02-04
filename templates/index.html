@@ -10,7 +10,7 @@
             margin: 0;
             padding: 0;
             background-color: #c9c9ff;
-            overflow-x: visible;
+            overflow: hidden;
         }
         canvas {
             position: fixed;
@@ -32,7 +32,7 @@
             text-align: center;
             color: #333;
         }
-        textarea, input[type="password"] {
+        textarea, input {
             width: 100%;
             padding: 10px;
             margin: 10px 0;
@@ -65,17 +65,27 @@
             background: rgba(255, 255, 255, 0.5);
             backdrop-filter: blur(10px);
         }
+        .error-message, .success-message {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .error-message { color: red; }
+        .success-message { color: green; }
     </style>
 </head>
 <body>
     <canvas></canvas>
     <div class="container">
         <h1>Приём идей и предложений</h1>
-        <textarea id="ideaInput" placeholder="Введите вашу идею или предложение..." onfocus="pauseAnimation()" onblur="resumeAnimation()"></textarea>
+        <textarea id="ideaInput" placeholder="Введите вашу идею..." onfocus="pauseAnimation()" onblur="resumeAnimation()"></textarea>
         <button onclick="submitIdea()">Отправить</button>
+        <div id="message"></div>
+
         <h2>Вход администратора</h2>
         <input type="password" id="adminCode" placeholder="Введите код администратора">
         <button onclick="loginAdmin()">Войти</button>
+
         <div id="adminSection" style="display: none;">
             <h2>Заявки:</h2>
             <div id="ideasList"></div>
@@ -85,42 +95,57 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
     <script>
         const serverUrl = "https://school450-project-1xdh.onrender.com";
-        const adminPassword = "12345";
-        const maxShapes = 11;
-        const shapeColors = ["#FFFF99", "#CCFF99", "#6699FF", "#9999FF", "#FF99FF"];
+        const shapeColors = ["#FFFF99", "#59ba75", "#6699FF", "#9999FF", "#FF99FF"];
         let animationPaused = false;
 
         async function submitIdea() {
             const ideaInput = document.getElementById('ideaInput');
+            const messageDiv = document.getElementById('message');
             const idea = ideaInput.value.trim();
             if (!idea) {
-                alert("Пожалуйста, введите текст идеи.");
+                showMessage("Пожалуйста, введите текст идеи.", "error");
                 return;
             }
+
             try {
                 const response = await fetch(`${serverUrl}/ideas`, {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-Token": getCSRFToken()
+                    },
                     body: JSON.stringify({ idea })
                 });
                 if (response.ok) {
-                    alert("Идея успешно отправлена!");
+                    showMessage("Идея успешно отправлена!", "success");
                     ideaInput.value = "";
                 } else {
-                    alert("Ошибка при отправке идеи.");
+                    showMessage("Ошибка при отправке идеи.", "error");
                 }
             } catch (error) {
-                alert("Не удалось соединиться с сервером.");
+                showMessage("Не удалось соединиться с сервером.", "error");
             }
         }
 
-        function loginAdmin() {
+        async function loginAdmin() {
             const code = document.getElementById('adminCode').value;
-            if (code === adminPassword) {
-                document.getElementById('adminSection').style.display = 'block';
-                fetchIdeas();
-            } else {
-                alert("Неверный код администратора.");
+            try {
+                const response = await fetch(`${serverUrl}/admin/login`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ password: code })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    document.getElementById('adminSection').style.display = 'block';
+                    fetchIdeas();
+                } else {
+                    showMessage("Неверный код администратора.", "error");
+                }
+            } catch (error) {
+                showMessage("Ошибка соединения с сервером.", "error");
             }
         }
 
@@ -132,28 +157,44 @@
                 ideasList.innerHTML = "";
                 ideas.forEach(({ id, idea }) => {
                     const ideaElement = document.createElement('div');
-                    ideaElement.innerHTML = `
-                        <div>${idea}</div>
-                        <button onclick="deleteIdea(${id})">Удалить</button>
-                    `;
+                    ideaElement.textContent = idea;
+
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = "Удалить";
+                    deleteButton.onclick = () => deleteIdea(id);
+
                     ideasList.appendChild(ideaElement);
+                    ideasList.appendChild(deleteButton);
                 });
             } catch (error) {
-                alert("Не удалось загрузить идеи.");
+                showMessage("Не удалось загрузить идеи.", "error");
             }
         }
 
         async function deleteIdea(id) {
             try {
-                const response = await fetch(`${serverUrl}/ideas/${id}`, { method: "DELETE" });
+                const response = await fetch(`${serverUrl}/ideas/${id}`, {
+                    method: "DELETE",
+                    headers: { "X-CSRF-Token": getCSRFToken() }
+                });
                 if (response.ok) {
                     fetchIdeas();
                 } else {
-                    alert("Ошибка при удалении идеи.");
+                    showMessage("Ошибка при удалении идеи.", "error");
                 }
             } catch (error) {
-                alert("Не удалось соединиться с сервером.");
+                showMessage("Не удалось соединиться с сервером.", "error");
             }
+        }
+
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = type === "error" ? "error-message" : "success-message";
+        }
+
+        function getCSRFToken() {
+            return document.cookie.split('; ').find(row => row.startsWith('csrf_token='))?.split('=')[1] || "";
         }
 
         // Matter.js - создание физического мира
@@ -177,59 +218,25 @@
         Render.run(render);
         const runner = Runner.create();
         Runner.run(runner, engine);
-        
-        // Границы экрана
+
+        // Создание границ
         const boundaries = [
-            Bodies.rectangle(window.innerWidth / 2, -50, window.innerWidth, 100, { isStatic: true }),
-            Bodies.rectangle(window.innerWidth / 2, window.innerHeight + 50, window.innerWidth, 100, { isStatic: true }),
-            Bodies.rectangle(-50, window.innerHeight / 2, 100, window.innerHeight, { isStatic: true }),
-            Bodies.rectangle(window.innerWidth + 50, window.innerHeight / 2, 100, window.innerHeight, { isStatic: true }),
+            Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 50, { isStatic: true }),
+            Bodies.rectangle(window.innerWidth / 2, 0, window.innerWidth, 50, { isStatic: true }),
+            Bodies.rectangle(0, window.innerHeight / 2, 50, window.innerHeight, { isStatic: true }),
+            Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 50, window.innerHeight, { isStatic: true })
         ];
         World.add(world, boundaries);
 
-        const shapes = [];
-        function addShape() {
-            if (animationPaused) return;
-
-            const size = Math.random() * 80 + 30;
-            const x = Math.random() * window.innerWidth;
-            const angle = (Math.random() - 0.5) * 0.6; // Рандомное отклонение падения
-
-            let shape;
-            if (Math.random() < 0.33) {
-                shape = Bodies.circle(x, -50, size / 2, { render: { fillStyle: randomColor() } });
-            } else if (Math.random() < 0.66) {
-                shape = Bodies.rectangle(x, -50, size, size, {
-                    chamfer: { radius: 10 },
-                    render: { fillStyle: randomColor() }
-                });
-            } else {
-                shape = Bodies.polygon(x, -50, 5, size / 2, {
-                    chamfer: { radius: 6 },
-                    render: { fillStyle: randomColor() }
-                });
+        setInterval(() => {
+            if (!animationPaused) {
+                const shape = Bodies.circle(Math.random() * window.innerWidth, -50, Math.random() * 30 + 20, { render: { fillStyle: shapeColors[Math.floor(Math.random() * shapeColors.length)] } });
+                World.add(world, shape);
             }
+        }, 1000);
 
-            Matter.Body.setAngle(shape, angle);
-            shapes.push(shape);
-            if (shapes.length > maxShapes) World.remove(world, shapes.shift());
-
-            World.add(world, shape);
-        }
-
-        setInterval(addShape, 1000);
-
-        function randomColor() {
-            return shapeColors[Math.floor(Math.random() * shapeColors.length)];
-        }
-
-        function pauseAnimation() {
-            animationPaused = true;
-        }
-
-        function resumeAnimation() {
-            animationPaused = false;
-        }
+        function pauseAnimation() { animationPaused = true; }
+        function resumeAnimation() { animationPaused = false; }
     </script>
 </body>
 </html>
