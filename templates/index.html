@@ -100,52 +100,88 @@
         const shapeColors = ["#FFFF99", "#59ba75", "#6699FF", "#9999FF", "#FF99FF"];
         let animationPaused = false;
 
-        const { Engine, Render, Runner, World, Bodies } = Matter;
-        const engine = Engine.create();
-        const world = engine.world;
+        // Matter.js - создание физического мира
+const { Engine, Render, Runner, World, Bodies } = Matter;
 
-        const canvas = document.querySelector('canvas');
-        const render = Render.create({
-            canvas,
-            engine: engine,
-            options: {
-                width: window.innerWidth,
-                height: window.innerHeight,
-                wireframes: false,
-                background: 'transparent'
-            }
+const engine = Engine.create();
+const world = engine.world;
+
+const canvas = document.querySelector('canvas');
+const render = Render.create({
+    canvas,
+    engine: engine,
+    options: {
+        width: window.innerWidth,
+        height: window.innerHeight,
+        wireframes: false,
+        background: 'transparent',
+    },
+});
+
+Render.run(render);
+const runner = Runner.create();
+Runner.run(runner, engine);
+
+// Границы экрана
+const boundaries = [
+    Bodies.rectangle(window.innerWidth / 2, -50, window.innerWidth, 100, { isStatic: true }),
+    Bodies.rectangle(window.innerWidth / 2, window.innerHeight + 50, window.innerWidth, 100, { isStatic: true }),
+    Bodies.rectangle(-50, window.innerHeight / 2, 100, window.innerHeight, { isStatic: true }),
+    Bodies.rectangle(window.innerWidth + 50, window.innerHeight / 2, 100, window.innerHeight, { isStatic: true }),
+];
+World.add(world, boundaries);
+
+const shapes = [];
+const maxShapes = 11; // Максимальное количество фигур
+
+function addShape() {
+    if (animationPaused) return;
+
+    const size = 110; // Фиксированный размер 80 + 30
+    const x = Math.random() * window.innerWidth;
+    const angle = (Math.random() - 0.5) * 0.6; // Отклонение падения в диагональ
+
+    let shape;
+    if (Math.random() < 0.33) {
+        shape = Bodies.circle(x, -50, size / 2, { render: { fillStyle: randomColor() } });
+    } else if (Math.random() < 0.66) {
+        shape = Bodies.rectangle(x, -50, size, size, {
+            chamfer: { radius: 10 },
+            render: { fillStyle: randomColor() }
         });
+    } else {
+        shape = Bodies.polygon(x, -50, 5, size / 2, {
+            chamfer: { radius: 6 },
+            render: { fillStyle: randomColor() }
+        });
+    }
 
-        Render.run(render);
-        const runner = Runner.create();
-        Runner.run(runner, engine);
-        Engine.run(engine);
+    Matter.Body.setAngle(shape, angle);
+    Matter.Body.setVelocity(shape, { x: angle * 5, y: 2 }); // Добавляем диагональное движение
 
-        const boundaries = [
-            Bodies.rectangle(window.innerWidth / 2, window.innerHeight + 25, window.innerWidth, 50, { isStatic: true }),
-            Bodies.rectangle(window.innerWidth / 2, -25, window.innerWidth, 50, { isStatic: true }),
-            Bodies.rectangle(-25, window.innerHeight / 2, 50, window.innerHeight, { isStatic: true }),
-            Bodies.rectangle(window.innerWidth + 25, window.innerHeight / 2, 50, window.innerHeight, { isStatic: true })
-        ];
-        World.add(world, boundaries);
+    shapes.push(shape);
+    World.add(world, shape);
 
-        function addShape() {
-            if (!animationPaused) {
-                const size = Math.random() * 30 + 20;
-                const shape = Bodies.circle(
-                    Math.random() * window.innerWidth,
-                    -50,
-                    size,
-                    {
-                        restitution: 0.8,
-                        friction: 0.3,
-                        render: { fillStyle: shapeColors[Math.floor(Math.random() * shapeColors.length)] }
-                    }
-                );
-                World.add(world, shape);
-            }
-            setTimeout(addShape, 500);  // Фигуры падают чаще
-        }
+    if (shapes.length > maxShapes) {
+        World.remove(world, shapes.shift()); // Удаляем старые фигуры
+    }
+}
+
+// Запуск анимации
+setInterval(addShape, 1000);
+
+function randomColor() {
+    return shapeColors[Math.floor(Math.random() * shapeColors.length)];
+}
+
+function pauseAnimation() {
+    animationPaused = true;
+}
+
+function resumeAnimation() {
+    animationPaused = false;
+}
+
         addShape();
 
         function pauseAnimation() { animationPaused = true; }
