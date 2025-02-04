@@ -18,8 +18,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -2;  /* Теперь он ещё глубже */
-            pointer-events: none; /* Блокирует клики по canvas */
+            z-index: -2;
+            pointer-events: none;
         }
         .container {
             position: relative;
@@ -64,6 +64,22 @@
             background: rgba(255, 255, 255, 0.5);
             backdrop-filter: blur(10px);
         }
+        /* Уведомления */
+        #notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 15px 25px;
+            font-size: 18px;
+            border-radius: 8px;
+            color: white;
+            display: none;
+            text-align: center;
+            z-index: 100;
+        }
+        .success { background: green; }
+        .error { background: red; }
     </style>
 </head>
 <body>
@@ -82,6 +98,8 @@
             <div id="ideasList"></div>
         </div>
     </div>
+
+    <div id="notification"></div> <!-- Уведомления -->
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
     <script>
@@ -108,42 +126,50 @@
         Render.run(render);
         const runner = Runner.create();
         Runner.run(runner, engine);
-        Engine.run(engine); // Явно запускаем физику
+        Engine.run(engine);
 
-        // Теперь границы стали тоньше
         const boundaries = [
-            Bodies.rectangle(window.innerWidth / 2, window.innerHeight + 25, window.innerWidth, 50, { isStatic: true, render: { visible: false } }),
-            Bodies.rectangle(window.innerWidth / 2, -25, window.innerWidth, 50, { isStatic: true, render: { visible: false } }),
-            Bodies.rectangle(-25, window.innerHeight / 2, 50, window.innerHeight, { isStatic: true, render: { visible: false } }),
-            Bodies.rectangle(window.innerWidth + 25, window.innerHeight / 2, 50, window.innerHeight, { isStatic: true, render: { visible: false } })
+            Bodies.rectangle(window.innerWidth / 2, window.innerHeight + 25, window.innerWidth, 50, { isStatic: true }),
+            Bodies.rectangle(window.innerWidth / 2, -25, window.innerWidth, 50, { isStatic: true }),
+            Bodies.rectangle(-25, window.innerHeight / 2, 50, window.innerHeight, { isStatic: true }),
+            Bodies.rectangle(window.innerWidth + 25, window.innerHeight / 2, 50, window.innerHeight, { isStatic: true })
         ];
         World.add(world, boundaries);
 
         function addShape() {
             if (!animationPaused) {
+                const size = Math.random() * 30 + 20;
                 const shape = Bodies.circle(
                     Math.random() * window.innerWidth,
-                    -50, 
-                    Math.random() * 30 + 20, 
-                    { 
-                        restitution: 0.8, // Упругость
-                        friction: 0.3, 
+                    -50,
+                    size,
+                    {
+                        restitution: 0.8,
+                        friction: 0.3,
                         render: { fillStyle: shapeColors[Math.floor(Math.random() * shapeColors.length)] }
                     }
                 );
                 World.add(world, shape);
             }
-            setTimeout(addShape, 1000);  // Уменьшаем нагрузку
+            setTimeout(addShape, 500);  // Фигуры падают чаще
         }
         addShape();
 
         function pauseAnimation() { animationPaused = true; }
         function resumeAnimation() { animationPaused = false; }
 
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = type;
+            notification.style.display = "block";
+            setTimeout(() => { notification.style.display = "none"; }, 2000);
+        }
+
         function submitIdea() {
             const idea = document.getElementById("ideaInput").value.trim();
             if (!idea) {
-                alert("Введите текст идеи!");
+                showNotification("Введите текст идеи!", "error");
                 return;
             }
             fetch(`${serverUrl}/ideas`, {
@@ -152,12 +178,12 @@
                 body: JSON.stringify({ idea })
             }).then(response => response.json())
               .then(data => {
-                  if (data.error) alert(data.error);
+                  if (data.error) showNotification(data.error, "error");
                   else {
-                      alert("Идея отправлена!");
+                      showNotification("Идея отправлена!", "success");
                       document.getElementById("ideaInput").value = "";
                   }
-              }).catch(() => alert("Ошибка соединения!"));
+              }).catch(() => showNotification("Ошибка соединения!", "error"));
         }
 
         async function loginAdmin() {
@@ -174,11 +200,12 @@
                     localStorage.setItem("adminToken", result.token);
                     document.getElementById('adminSection').style.display = 'block';
                     fetchIdeas();
+                    showNotification("Вход выполнен!", "success");
                 } else {
-                    alert(result.error);
+                    showNotification(result.error, "error");
                 }
             } catch (error) {
-                alert("Ошибка соединения!");
+                showNotification("Ошибка соединения!", "error");
             }
         }
 
@@ -193,25 +220,7 @@
                     </div>
                 `).join("");
             } catch (error) {
-                alert("Ошибка загрузки идей!");
-            }
-        }
-
-        async function deleteIdea(id) {
-            const token = localStorage.getItem("adminToken");
-            if (!token) {
-                alert("Ошибка: Вы не вошли как администратор!");
-                return;
-            }
-
-            try {
-                await fetch(`${serverUrl}/ideas/${id}`, {
-                    method: "DELETE",
-                    headers: { "Authorization": `Bearer ${token}` }
-                });
-                fetchIdeas();
-            } catch (error) {
-                alert("Ошибка при удалении идеи.");
+                showNotification("Ошибка загрузки идей!", "error");
             }
         }
     </script>
