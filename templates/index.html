@@ -242,6 +242,12 @@ function resumeAnimation() {
                 showNotification("Ошибка соединения!", "error");
             }
         }
+        document.addEventListener("click", function (event) {
+    if (event.target.classList.contains("delete-btn")) {
+        console.log("Кнопка 'Удалить' нажата!");
+    }
+});
+
 
         async function fetchIdeas() {
             try {
