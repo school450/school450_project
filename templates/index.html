@@ -263,6 +263,25 @@ function resumeAnimation() {
                 showNotification("Ошибка загрузки идей!", "error");
             }
         }
+        async function deleteIdea(id) {
+    try {
+        const response = await fetch(`${serverUrl}/ideas/${id}`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" }
+        });
+
+        if (response.ok) {
+            showNotification("Идея удалена!", "success");
+            fetchIdeas(); // Перезагружаем список идей после удаления
+        } else {
+            const result = await response.json();
+            showNotification(result.error || "Ошибка удаления!", "error");
+        }
+    } catch (error) {
+        showNotification("Ошибка соединения!", "error");
+    }
+}
+
     </script>
 </body>
 </html>
