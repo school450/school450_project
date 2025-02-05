@@ -9,7 +9,7 @@ app = Flask(__name__)
 CORS(app, resources={r"/ideas/*": {"origins": "*"}})
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
-SECRET_KEY = os.environ.get("SECRET_KEY", "supersecret")  # Секретный ключ для токенов
+SECRET_KEY = os.environ.get("SECRET_KEY", "xejhoq-senfe1-fettoB")  # Секретный ключ для токенов
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "12345")  # Пароль админа (убираем его из HTML!)
 
 def get_db_connection():
