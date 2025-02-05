@@ -97,7 +97,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
     <script>
         const serverUrl = "https://school450-project-1xdh.onrender.com";
-        const shapeColors = ["#FFFF99", "#59ba75", "#6699FF", "#9999FF", "#FF99FF"];
+        const shapeColors = ["#FFFF99", "#6ad46f", "#85c8ff", "#a4a4f5", "#fab9f7"];
         let animationPaused = false;
 
         // Matter.js - создание физического мира
@@ -137,7 +137,7 @@ const maxShapes = 11; // Максимальное количество фигу�
 function addShape() {
     if (animationPaused) return;
 
-    const size = 110; // Фиксированный размер 80 + 30
+    const size = Math.random() * 80 + 30;
     const x = Math.random() * window.innerWidth;
     const angle = (Math.random() - 0.5) * 0.6; // Отклонение падения в диагональ
 
