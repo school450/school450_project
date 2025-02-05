@@ -264,15 +264,25 @@ function resumeAnimation() {
             }
         }
         async function deleteIdea(id) {
+    const token = localStorage.getItem("adminToken"); // Берём токен из хранилища
+
+    if (!token) {
+        showNotification("Ошибка: нет токена авторизации!", "error");
+        return;
+    }
+
     try {
         const response = await fetch(`${serverUrl}/ideas/${id}`, {
             method: "DELETE",
-            headers: { "Content-Type": "application/json" }
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}` // Передаём токен
+            }
         });
 
         if (response.ok) {
             showNotification("Идея удалена!", "success");
-            fetchIdeas(); // Перезагружаем список идей после удаления
+            fetchIdeas(); // Обновляем список
         } else {
             const result = await response.json();
             showNotification(result.error || "Ошибка удаления!", "error");
@@ -281,7 +291,6 @@ function resumeAnimation() {
         showNotification("Ошибка соединения!", "error");
     }
 }
-
     </script>
 </body>
 </html>
