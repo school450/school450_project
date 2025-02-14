@@ -1,9 +1,11 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import psycopg2
+from psycopg2.extras import DictCursor
 import os
 import jwt
 import datetime
+from functools import wraps
 
 app = Flask(__name__)
 CORS(app, resources={r"/ideas/*": {"origins": "*"}})
@@ -12,8 +14,10 @@ DATABASE_URL = os.environ.get("DATABASE_URL")
 SECRET_KEY = os.environ.get("SECRET_KEY", "xejhoq-senfe1-fettoB")  # Секретный ключ для токенов
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "12345")  # Пароль админа (убираем его из HTML!)
 
+
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL)
+
 
 def init_db():
     try:
@@ -23,6 +27,7 @@ def init_db():
             CREATE TABLE IF NOT EXISTS ideas (
                 id SERIAL PRIMARY KEY,
                 idea TEXT NOT NULL,
+                status VARCHAR(10) DEFAULT 'pending',
                 created_at TIMESTAMP DEFAULT NOW()
             )
         ''')
@@ -32,11 +37,14 @@ def init_db():
     finally:
         conn.close()
 
+
 init_db()
+
 
 @app.route('/', methods=['GET'])
 def home_page():
     return render_template('index.html')
+
 
 @app.route('/admin/login', methods=['POST'])
 def admin_login():
@@ -54,7 +62,9 @@ def admin_login():
 
     return jsonify({"token": token})
 
+
 def authenticate(f):
+    @wraps(f)
     def wrapper(*args, **kwargs):
         token = request.headers.get("Authorization")
         if not token:
@@ -71,14 +81,14 @@ def authenticate(f):
 
         return f(*args, **kwargs)
 
-    wrapper.__name__ = f.__name__
     return wrapper
+
 
 @app.route('/ideas', methods=['GET'])
 def get_ideas():
     conn = get_db_connection()
-    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    cursor.execute('SELECT id, idea, created_at FROM ideas ORDER BY created_at DESC')
+    cursor = conn.cursor(cursor_factory=DictCursor)
+    cursor.execute('SELECT id, idea, status, created_at FROM ideas ORDER BY created_at DESC')
     ideas = cursor.fetchall()
     conn.close()
     return jsonify([dict(idea) for idea in ideas])
@@ -88,17 +98,16 @@ def get_ideas():
 def add_idea():
     data = request.json
     idea = data.get("idea")
-    if not idea:
+    if not idea or idea.strip() == "":
         return jsonify({"error": "Поле 'idea' обязательно"}), 400
 
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # Проверяем, есть ли такая же идея за последние 7 дней
         cursor.execute(
             """
-            SELECT COUNT(*) FROM ideas 
+            SELECT COUNT(*) FROM ideas
             WHERE idea = %s AND created_at >= NOW() - INTERVAL '7 days'
             """,
             (idea,)
@@ -108,8 +117,7 @@ def add_idea():
         if duplicate_count > 0:
             return jsonify({"error": "Такая идея уже была отправлена за последнюю неделю!"}), 409
 
-        # Добавляем новую идею
-        cursor.execute("INSERT INTO ideas (idea, created_at) VALUES (%s, NOW())", (idea,))
+        cursor.execute("INSERT INTO ideas (idea, status, created_at) VALUES (%s, 'pending', NOW())", (idea,))
         conn.commit()
         return jsonify({"message": "Идея успешно добавлена"}), 201
     except psycopg2.Error as e:
@@ -117,17 +125,6 @@ def add_idea():
     finally:
         conn.close()
 
-
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute('INSERT INTO ideas (idea) VALUES (%s)', (idea,))
-        conn.commit()
-        return jsonify({"message": "Идея успешно добавлена"}), 201
-    except psycopg2.Error as e:
-        return jsonify({"error": f"Ошибка базы данных: {e}"}), 500
-    finally:
-        conn.close()
 
 @app.route('/ideas/<int:idea_id>', methods=['DELETE'])
 @authenticate
@@ -142,6 +139,28 @@ def delete_idea(idea_id):
         return jsonify({"error": f"Ошибка базы данных: {e}"}), 500
     finally:
         conn.close()
+
+
+@app.route('/ideas/<int:idea_id>/status', methods=['PUT'])
+@authenticate
+def update_status(idea_id):
+    data = request.json
+    new_status = data.get("status")
+
+    if new_status not in ["pending", "approved", "rejected"]:
+        return jsonify({"error": "Неверный статус"}), 400
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE ideas SET status = %s WHERE id = %s", (new_status, idea_id))
+        conn.commit()
+        return jsonify({"message": "Статус обновлён"}), 200
+    except psycopg2.Error as e:
+        return jsonify({"error": f"Ошибка базы данных: {e}"}), 500
+    finally:
+        conn.close()
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
