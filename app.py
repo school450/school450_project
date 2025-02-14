@@ -22,7 +22,8 @@ def init_db():
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS ideas (
                 id SERIAL PRIMARY KEY,
-                idea TEXT NOT NULL
+                idea TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT NOW()
             )
         ''')
         conn.commit()
@@ -75,16 +76,13 @@ def authenticate(f):
 
 @app.route('/ideas', methods=['GET'])
 def get_ideas():
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute('SELECT id, idea FROM ideas')
-        ideas = [{"id": row[0], "idea": row[1]} for row in cursor.fetchall()]
-        return jsonify(ideas), 200
-    except psycopg2.Error as e:
-        return jsonify({"error": f"Ошибка базы данных: {e}"}), 500
-    finally:
-        conn.close()
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cursor.execute('SELECT id, idea, created_at FROM ideas ORDER BY created_at DESC')
+    ideas = cursor.fetchall()
+    conn.close()
+    return jsonify([dict(idea) for idea in ideas])
+
 
 @app.route('/ideas', methods=['POST'])
 def add_idea():
@@ -92,6 +90,33 @@ def add_idea():
     idea = data.get("idea")
     if not idea:
         return jsonify({"error": "Поле 'idea' обязательно"}), 400
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Проверяем, есть ли такая же идея за последние 7 дней
+        cursor.execute(
+            """
+            SELECT COUNT(*) FROM ideas 
+            WHERE idea = %s AND created_at >= NOW() - INTERVAL '7 days'
+            """,
+            (idea,)
+        )
+        duplicate_count = cursor.fetchone()[0]
+
+        if duplicate_count > 0:
+            return jsonify({"error": "Такая идея уже была отправлена за последнюю неделю!"}), 409
+
+        # Добавляем новую идею
+        cursor.execute("INSERT INTO ideas (idea, created_at) VALUES (%s, NOW())", (idea,))
+        conn.commit()
+        return jsonify({"message": "Идея успешно добавлена"}), 201
+    except psycopg2.Error as e:
+        return jsonify({"error": f"Ошибка базы данных: {e}"}), 500
+    finally:
+        conn.close()
+
 
     try:
         conn = get_db_connection()
