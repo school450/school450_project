@@ -200,25 +200,53 @@ function resumeAnimation() {
             setTimeout(() => { notification.style.display = "none"; }, 5000);
         }
 
-        function submitIdea() {
-            const idea = document.getElementById("ideaInput").value.trim();
-            if (!idea) {
-                showNotification("Введите текст идеи!", "error");
-                return;
-            }
-            fetch(`${serverUrl}/ideas`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ idea })
-            }).then(response => response.json())
-              .then(data => {
-                  if (data.error) showNotification(data.error, "error");
-                  else {
-                      showNotification("Идея отправлена!", "success");
-                      document.getElementById("ideaInput").value = "";
-                  }
-              }).catch(() => showNotification("Ошибка соединения!", "error"));
+        async function submitIdea() {
+    const ideaInput = document.getElementById("ideaInput");
+    const submitButton = document.querySelector("#submitButton");
+submitButton.disabled = true;
+submitButton.textContent = "Отправка...";
+    const idea = ideaInput.value.trim();
+
+    if (!idea || /^[\s\W]+$/.test(idea)) {
+        showNotification("Введите осмысленный текст идеи!", "error");
+        return;
+    }
+
+    try {
+        // Проверяем дубликаты за неделю
+        const responseCheck = await fetch(`${serverUrl}/ideas/check-duplicate`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ idea })
+        });
+
+        const checkResult = await responseCheck.json();
+        if (checkResult.isDuplicate) {
+            showNotification("Такая идея уже была отправлена за последнюю неделю!", "error");
+            return;
         }
+
+        // Отправка идеи
+        const response = await fetch(`${serverUrl}/ideas`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ idea })
+        });
+
+        if (response.ok) {
+            showNotification("Идея отправлена!", "success");
+            ideaInput.value = "";
+            fetchIdeas();
+        } else {
+            const result = await response.json();
+            showNotification(result.error || "Ошибка отправки!", "error");
+        }
+    } catch (error) {
+        showNotification("Ошибка соединения!", "error");
+        submitButton.disabled = false;
+submitButton.textContent = "Отправить";
+    }
+}
 
         async function loginAdmin() {
             const code = document.getElementById('adminCode').value;
@@ -250,39 +278,48 @@ function resumeAnimation() {
 
 
         async function fetchIdeas() {
-            try {
-                const response = await fetch(`${serverUrl}/ideas`);
-                const ideas = await response.json();
-                document.getElementById('ideasList').innerHTML = ideas.map(idea => `
-                    <div>
-                        <p>${idea.idea}</p>
-                        <button onclick="deleteIdea(${idea.id})">Удалить</button>
-                    </div>
-                `).join("");
-            } catch (error) {
-                showNotification("Ошибка загрузки идей!", "error");
-            }
+    try {
+        const response = await fetch(`${serverUrl}/ideas`);
+        if (!response.ok) {
+            throw new Error("Ошибка загрузки идей");
         }
-        async function deleteIdea(id) {
-    const token = localStorage.getItem("adminToken"); // Берём токен из хранилища
 
-    if (!token) {
-        showNotification("Ошибка: нет токена авторизации!", "error");
-        return;
+        let ideas = await response.json();
+
+        // Сортировка: сначала новые идеи (по убыванию даты)
+        ideas.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+        const ideasList = document.getElementById("ideasList");
+        ideasList.innerHTML = ""; // Очищаем список перед вставкой
+
+        ideas.forEach(idea => {
+            const ideaItem = document.createElement("li");
+            ideaItem.textContent = `${idea.idea} (добавлено: ${new Date(idea.created_at).toLocaleString()})`;
+            ideasList.appendChild(ideaItem);
+        });
+    } catch (error) {
+        showNotification("Ошибка загрузки идей!", "error");
     }
+}
 
+
+function formatDate(dateString) {
+    const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+    return new Date(dateString).toLocaleDateString("ru-RU", options);
+}
+
+        async function deleteIdea(id) {
+    if (!confirm("Вы уверены, что хотите удалить эту идею?")) return; // Подтверждение
+    
     try {
         const response = await fetch(`${serverUrl}/ideas/${id}`, {
             method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}` // Передаём токен
-            }
+            headers: { "Content-Type": "application/json" }
         });
 
         if (response.ok) {
             showNotification("Идея удалена!", "success");
-            fetchIdeas(); // Обновляем список
+            fetchIdeas(); // Перезагружаем список
         } else {
             const result = await response.json();
             showNotification(result.error || "Ошибка удаления!", "error");
@@ -290,6 +327,64 @@ function resumeAnimation() {
     } catch (error) {
         showNotification("Ошибка соединения!", "error");
     }
+}
+document.getElementById("ideaInput").addEventListener("keypress", function (event) {
+    if (event.key === "Enter" && !event.shiftKey) { // Проверяем, что Enter нажат без Shift
+        event.preventDefault(); // Отменяем перевод строки
+        submitIdea(); // Отправляем идею
+    }
+});
+<select id="sortSelect">
+    <option value="newest">Сначала новые</option>
+    <option value="oldest">Сначала старые</option>
+</select>
+
+<select id="statusFilter">
+    <option value="all">Все</option>
+    <option value="pending">На рассмотрении</option>
+    <option value="approved">Одобрено</option>
+    <option value="rejected">Отклонено</option>
+</select>
+function renderIdea(idea) {
+    const ideaElement = document.createElement("div");
+    ideaElement.classList.add("idea");
+
+    const statusColors = {
+        pending: "yellow",
+        approved: "green",
+        rejected: "red"
+    };
+
+    ideaElement.style.backgroundColor = statusColors[idea.status] || "white";
+
+    ideaElement.innerHTML = `
+        <p>${idea.text}</p>
+        <small>${new Date(idea.timestamp).toLocaleString()}</small>
+        <button class="status-button">⋮</button>
+    `;
+
+    const statusButton = ideaElement.querySelector(".status-button");
+    statusButton.addEventListener("click", () => {
+        changeStatus(idea.id);
+    });
+
+    document.getElementById("ideasList").appendChild(ideaElement);
+}
+async function changeStatus(ideaId) {
+    const newStatus = prompt("Введите статус: pending, approved, rejected");
+
+    if (!["pending", "approved", "rejected"].includes(newStatus)) {
+        alert("Неверный статус!");
+        return;
+    }
+
+    await fetch(`${serverUrl}/ideas/${ideaId}/status`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus })
+    });
+
+    fetchIdeas(); // Обновление списка идей
 }
     </script>
 </body>
