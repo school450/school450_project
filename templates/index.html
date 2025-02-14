@@ -225,14 +225,6 @@ submitButton.textContent = "Отправка...";
             showNotification("Такая идея уже была отправлена за последнюю неделю!", "error");
             return;
         }
-
-        // Отправка идеи
-        const response = await fetch(`${serverUrl}/ideas`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ idea })
-        });
-
         if (response.ok) {
             showNotification("Идея отправлена!", "success");
             ideaInput.value = "";
@@ -251,11 +243,14 @@ submitButton.textContent = "Отправить";
         async function loginAdmin() {
             const code = document.getElementById('adminCode').value;
             try {
-                const response = await fetch(`${serverUrl}/admin/login`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ password: code })
-                });
+                const token = localStorage.getItem("adminToken");
+const response = await fetch(`${serverUrl}/ideas/${id}`, {
+    method: "DELETE",
+    headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+    }
+});
                 const result = await response.json();
 
                 if (response.ok) {
@@ -277,6 +272,26 @@ submitButton.textContent = "Отправить";
 });
 
 
+        async function changeStatus(ideaId) {
+    const newStatus = prompt("Введите статус: pending, approved, rejected");
+    if (!["pending", "approved", "rejected"].includes(newStatus)) {
+        alert("Неверный статус!");
+        return;
+    }
+
+    const token = localStorage.getItem("adminToken");
+    await fetch(`${serverUrl}/ideas/${ideaId}/status`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ status: newStatus })
+    });
+
+    fetchIdeas(); // Обновление списка идей
+}
+
         async function fetchIdeas() {
     try {
         const response = await fetch(`${serverUrl}/ideas`);
@@ -294,7 +309,7 @@ submitButton.textContent = "Отправить";
 
         ideas.forEach(idea => {
             const ideaItem = document.createElement("li");
-            ideaItem.textContent = `${idea.idea} (добавлено: ${new Date(idea.created_at).toLocaleString()})`;
+            ideaItem.textContent = `${idea.idea} (статус: ${idea.status}, добавлено: ${new Date(idea.created_at).toLocaleString()})`;
             ideasList.appendChild(ideaItem);
         });
     } catch (error) {
@@ -346,9 +361,14 @@ document.getElementById("ideaInput").addEventListener("keypress", function (even
     <option value="rejected">Отклонено</option>
 </select>
 function renderIdea(idea) {
+    const statusButton = document.createElement("button");
+statusButton.textContent = "Изменить статус";
+statusButton.onclick = () => changeStatus(idea.id);
+ideaElement.appendChild(statusButton);
     const ideaElement = document.createElement("div");
     ideaElement.classList.add("idea");
 
+    if (!idea.status) idea.status = "pending"; // Если статус отсутствует, ставим 'pending'
     const statusColors = {
         pending: "yellow",
         approved: "green",
@@ -370,22 +390,7 @@ function renderIdea(idea) {
 
     document.getElementById("ideasList").appendChild(ideaElement);
 }
-async function changeStatus(ideaId) {
-    const newStatus = prompt("Введите статус: pending, approved, rejected");
 
-    if (!["pending", "approved", "rejected"].includes(newStatus)) {
-        alert("Неверный статус!");
-        return;
-    }
-
-    await fetch(`${serverUrl}/ideas/${ideaId}/status`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus })
-    });
-
-    fetchIdeas(); // Обновление списка идей
-}
     </script>
 </body>
 </html>
