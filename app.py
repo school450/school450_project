@@ -49,7 +49,7 @@ def home_page():
 @app.route('/admin/login', methods=['POST'])
 def admin_login():
     data = request.json
-    password = data.get("password")
+    password = data.get("code")
 
     if password != ADMIN_PASSWORD:
         return jsonify({"error": "Неверный пароль"}), 401
