@@ -240,14 +240,80 @@ function randomColor() {
             return;
         }
 
+        // Создаём таблицу
+        const table = document.createElement("table");
+        table.innerHTML = `
+            <tr>
+                <th>ID</th>
+                <th>Идея</th>
+                <th>Дата</th>
+                <th>Статус</th>
+                <th>Действия</th>
+            </tr>
+        `;
+
         ideas.forEach(idea => {
-            const ideaElement = document.createElement("div");
-            ideaElement.textContent = idea.idea;
-            ideasList.appendChild(ideaElement);
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                <td>${idea.id}</td>
+                <td>${idea.idea}</td>
+                <td>${new Date(idea.date).toLocaleString()}</td>
+                <td>
+                    <select onchange="updateStatus(${idea.id}, this.value)">
+                        <option value="новая" ${idea.status === "новая" ? "selected" : ""}>Новая</option>
+                        <option value="в работе" ${idea.status === "в работе" ? "selected" : ""}>В работе</option>
+                        <option value="завершена" ${idea.status === "завершена" ? "selected" : ""}>Завершена</option>
+                    </select>
+                </td>
+                <td><button onclick="deleteIdea(${idea.id})">Удалить</button></td>
+            `;
+
+            table.appendChild(row);
         });
+
+        ideasList.appendChild(table);
 
     } catch (error) {
         showNotification("Ошибка загрузки идей!", "error");
+    }
+}
+
+
+        async function deleteIdea(id) {
+    if (!confirm("Вы уверены, что хотите удалить эту заявку?")) return;
+
+    try {
+        const response = await fetch(`${serverUrl}/ideas/${id}`, {
+            method: "DELETE"
+        });
+
+        if (response.ok) {
+            showNotification("Заявка удалена!", "success");
+            fetchIdeas(); // Обновляем список после удаления
+        } else {
+            showNotification("Ошибка удаления!", "error");
+        }
+    } catch (error) {
+        showNotification("Ошибка соединения!", "error");
+    }
+}
+
+        async function updateStatus(id, newStatus) {
+    try {
+        const response = await fetch(`${serverUrl}/ideas/${id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: newStatus })
+        });
+
+        if (response.ok) {
+            showNotification("Статус обновлён!", "success");
+        } else {
+            showNotification("Ошибка обновления статуса!", "error");
+        }
+    } catch (error) {
+        showNotification("Ошибка соединения!", "error");
     }
 }
 
