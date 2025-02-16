@@ -14,6 +14,7 @@ DATABASE_URL = os.environ.get("DATABASE_URL")
 SECRET_KEY = os.environ.get("SECRET_KEY", "xejhoq-senfe1-fettoB")  # Секретный ключ для токенов
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "12345")  # Пароль админа (убираем его из HTML!)
 
+print("DATABASE_URL:", DATABASE_URL)
 
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL)
