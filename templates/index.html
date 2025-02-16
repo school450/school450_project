@@ -32,6 +32,42 @@
             text-align: center;
             color: #333;
         }
+        .dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropbtn {
+    background-color: transparent;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+    z-index: 1;
+    right: 0;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 8px 12px;
+    display: block;
+    text-decoration: none;
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
         textarea, input {
             width: 100%;
             padding: 10px;
@@ -244,7 +280,6 @@ function randomColor() {
         const table = document.createElement("table");
         table.innerHTML = `
             <tr>
-                <th>ID</th>
                 <th>Идея</th>
                 <th>Дата</th>
                 <th>Статус</th>
@@ -255,18 +290,37 @@ function randomColor() {
         ideas.forEach(idea => {
             const row = document.createElement("tr");
 
+            // Цвет строки по статусу
+            let color = "";
+            switch (idea.status) {
+                case "новая": color = "#b3d9ff"; break;  // Синий
+                case "в работе": color = "#ffcc66"; break;  // Жёлтый
+                case "одобрено": color = "#99ff99"; break;  // Зелёный
+                case "завершена": color = "#cccccc"; break;  // Серый
+            }
+
+            row.style.backgroundColor = color;
+
             row.innerHTML = `
-                <td>${idea.id}</td>
                 <td>${idea.idea}</td>
                 <td>${new Date(idea.date).toLocaleString()}</td>
                 <td>
                     <select onchange="updateStatus(${idea.id}, this.value)">
                         <option value="новая" ${idea.status === "новая" ? "selected" : ""}>Новая</option>
                         <option value="в работе" ${idea.status === "в работе" ? "selected" : ""}>В работе</option>
+                        <option value="одобрено" ${idea.status === "одобрено" ? "selected" : ""}>Одобрено</option>
                         <option value="завершена" ${idea.status === "завершена" ? "selected" : ""}>Завершена</option>
                     </select>
                 </td>
-                <td><button onclick="deleteIdea(${idea.id})">Удалить</button></td>
+                <td>
+                    <div class="dropdown">
+                        <button class="dropbtn">⋮</button>
+                        <div class="dropdown-content">
+                            <a href="#" onclick="editIdea(${idea.id})">✏ Изменить</a>
+                            <a href="#" onclick="deleteIdea(${idea.id})">🗑 Удалить</a>
+                        </div>
+                    </div>
+                </td>
             `;
 
             table.appendChild(row);
@@ -278,8 +332,6 @@ function randomColor() {
         showNotification("Ошибка загрузки идей!", "error");
     }
 }
-
-
         async function deleteIdea(id) {
     if (!confirm("Вы уверены, что хотите удалить эту заявку?")) return;
 
@@ -315,6 +367,24 @@ function randomColor() {
     } catch (error) {
         showNotification("Ошибка соединения!", "error");
     }
+}
+
+        function editIdea(id) {
+    const newText = prompt("Введите новый текст идеи:");
+    if (!newText) return;
+
+    fetch(`${serverUrl}/ideas/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idea: newText })
+    }).then(response => {
+        if (response.ok) {
+            showNotification("Идея обновлена!", "success");
+            fetchIdeas();
+        } else {
+            showNotification("Ошибка при обновлении!", "error");
+        }
+    });
 }
 
         async function loginAdmin() {
