@@ -227,27 +227,53 @@ function randomColor() {
             }
         }
 
-        async function loginAdmin() {
-            const code = document.getElementById('adminCode').value;
-            try {
-                const response = await fetch(`${serverUrl}/admin/login`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ code })
-                });
+        async function fetchIdeas() {
+    try {
+        const response = await fetch(`${serverUrl}/ideas`);
+        const ideas = await response.json();
 
-                const result = await response.json();
-                if (response.ok) {
-                    localStorage.setItem("adminToken", result.token);
-                    document.getElementById('adminSection').style.display = 'block';
-                    showNotification("Вход выполнен!", "success");
-                } else {
-                    showNotification(result.error, "error");
-                }
-            } catch (error) {
-                showNotification("Ошибка соединения!", "error");
-            }
+        const ideasList = document.getElementById("ideasList");
+        ideasList.innerHTML = ""; // Очищаем перед вставкой новых данных
+
+        if (ideas.length === 0) {
+            ideasList.innerHTML = "<p>Нет заявок</p>";
+            return;
         }
+
+        ideas.forEach(idea => {
+            const ideaElement = document.createElement("div");
+            ideaElement.textContent = idea.idea;
+            ideasList.appendChild(ideaElement);
+        });
+
+    } catch (error) {
+        showNotification("Ошибка загрузки идей!", "error");
+    }
+}
+
+        async function loginAdmin() {
+    const code = document.getElementById('adminCode').value;
+    try {
+        const response = await fetch(`${serverUrl}/admin/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code })
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            localStorage.setItem("adminToken", result.token);
+            document.getElementById('adminSection').style.display = 'block';
+            showNotification("Вход выполнен!", "success");
+
+            fetchIdeas(); // ⬅️ ВАЖНО! Загружаем список идей после входа
+        } else {
+            showNotification(result.error, "error");
+        }
+    } catch (error) {
+        showNotification("Ошибка соединения!", "error");
+    }
+}
     </script>
 </body>
 </html>
