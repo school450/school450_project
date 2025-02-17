@@ -303,7 +303,7 @@ function randomColor() {
 
             row.innerHTML = `
                 <td>${idea.idea}</td>
-                <td>${new Date(idea.date).toLocaleString()}</td>
+                <td>${new Date(idea.created_at).toLocaleString()}</td>
                 <td>
                     <select onchange="updateStatus(${idea.id}, this.value)">
                         <option value="новая" ${idea.status === "новая" ? "selected" : ""}>Новая</option>
