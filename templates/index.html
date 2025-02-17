@@ -292,15 +292,12 @@ function randomColor() {
 
             // Цвет строки по статусу
             let color = "";
-            switch (idea.status) {
-                case "новая": color = "#b3d9ff"; break;  // Синий
-                case "в работе": color = "#ffcc66"; break;  // Жёлтый
-                case "одобрено": color = "#99ff99"; break;  // Зелёный
-                case "завершена": color = "#cccccc"; break;  // Серый
-            }
-
-            row.style.backgroundColor = color;
-
+switch (idea.status) {
+    case "pending": color = "#ffcc66"; break;  // Оранжевый
+    case "approved": color = "#99ff99"; break;  // Зелёный
+    case "rejected": color = "#ff9999"; break;  // Красный
+}
+row.style.backgroundColor = color;
             row.innerHTML = `
                 <td>${idea.idea}</td>
                 <td>${new Date(idea.created_at).toLocaleString()}</td>
@@ -370,21 +367,22 @@ function randomColor() {
 }
 
         function editIdea(id) {
-    const newText = prompt("Введите новый текст идеи:");
-    if (!newText) return;
+    const token = localStorage.getItem("adminToken"); // ⬅️ Берём токен из локального хранилища
 
-    fetch(`${serverUrl}/ideas/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idea: newText })
-    }).then(response => {
-        if (response.ok) {
-            showNotification("Идея обновлена!", "success");
-            fetchIdeas();
-        } else {
-            showNotification("Ошибка при обновлении!", "error");
-        }
-    });
+fetch(`${serverUrl}/ideas/${id}`, {
+    method: "DELETE",
+    headers: {
+        "Authorization": `Bearer ${token}` // ⬅️ Добавили токен администратора
+    }
+}).then(response => {
+    if (response.ok) {
+        showNotification("Идея удалена!", "success");
+        fetchIdeas(); // Обновляем список
+    } else {
+        showNotification("Ошибка удаления!", "error");
+    }
+});
+
 }
 
         async function loginAdmin() {
