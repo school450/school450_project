@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель - Школа 450</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+</head>
+<body>
+    <div class="admin-container">
+        <h1>Админ-панель</h1>
+        <div class="filter-sort">
+            <select id="filterStatus">
+                <option value="">Все статусы</option>
+                <option value="pending">В ожидании</option>
+                <option value="approved">Одобрено</option>
+                <option value="rejected">Отклонено</option>
+            </select>
+            <button onclick="sortByDate()">Сортировать по дате</button>
+        </div>
+        <div id="ideasList"></div>
+    </div>
+    <script src="{{ url_for('static', filename='admin.js') }}"></script>
+</body>
+</html>

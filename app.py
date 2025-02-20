@@ -165,6 +165,9 @@ def update_status(idea_id):
     finally:
         conn.close()
 
+@app.route('/admin', methods=['GET'])
+def admin_page():
+    return render_template('admin.html')
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
