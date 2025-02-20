@@ -33,8 +33,11 @@ def init_db():
             )
         ''')
         conn.commit()
+        cursor.close()
+        conn.close()
     except psycopg2.Error as e:
         print(f"Ошибка базы данных при инициализации: {e}")
+
     finally:
         conn.close()
 
