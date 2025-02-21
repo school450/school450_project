@@ -12,13 +12,10 @@ CORS(app, resources={r"/ideas/*": {"origins": "*"}})
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 SECRET_KEY = os.environ.get("SECRET_KEY", "xejhoq-senfe1-fettoB")  # Секретный ключ для токенов
-ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "12345")  # Пароль админа (убираем его из HTML!)
-
-print("DATABASE_URL:", DATABASE_URL)
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "12345")  # Пароль админа
 
 def get_db_connection():
-    return psycopg2.connect(DATABASE_URL)
-
+    return psycopg2.connect(DATABASE_URL, sslmode="require")
 
 def init_db():
     try:
@@ -28,27 +25,25 @@ def init_db():
             CREATE TABLE IF NOT EXISTS ideas (
                 id SERIAL PRIMARY KEY,
                 idea TEXT NOT NULL,
-                status VARCHAR(10) DEFAULT 'pending',
+                status VARCHAR(20) DEFAULT 'новая',
                 created_at TIMESTAMP DEFAULT NOW()
             )
         ''')
         conn.commit()
-        cursor.close()
-        conn.close()
     except psycopg2.Error as e:
         print(f"Ошибка базы данных при инициализации: {e}")
-
     finally:
         conn.close()
 
-
 init_db()
 
-
-@app.route('/', methods=['GET'])
+@app.route('/')
 def home_page():
     return render_template('index.html')
 
+@app.route('/admin')
+def admin_page():
+    return render_template('admin.html')
 
 @app.route('/admin/login', methods=['POST'])
 def admin_login():
@@ -65,7 +60,6 @@ def admin_login():
     )
 
     return jsonify({"token": token})
-
 
 def authenticate(f):
     @wraps(f)
@@ -87,7 +81,6 @@ def authenticate(f):
 
     return wrapper
 
-
 @app.route('/ideas', methods=['GET'])
 def get_ideas():
     conn = get_db_connection()
@@ -96,7 +89,6 @@ def get_ideas():
     ideas = cursor.fetchall()
     conn.close()
     return jsonify([dict(idea) for idea in ideas])
-
 
 @app.route('/ideas', methods=['POST'])
 def add_idea():
@@ -108,27 +100,13 @@ def add_idea():
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-
-        cursor.execute(
-            """
-            SELECT COUNT(*) FROM ideas
-            WHERE idea = %s AND created_at >= NOW() - INTERVAL '7 days'
-            """,
-            (idea,)
-        )
-        duplicate_count = cursor.fetchone()[0]
-
-        if duplicate_count > 0:
-            return jsonify({"error": "Такая идея уже была отправлена за последнюю неделю!"}), 409
-
-        cursor.execute("INSERT INTO ideas (idea, status, created_at) VALUES (%s, 'pending', NOW())", (idea,))
+        cursor.execute("INSERT INTO ideas (idea, status, created_at) VALUES (%s, 'новая', NOW())", (idea,))
         conn.commit()
         return jsonify({"message": "Идея успешно добавлена"}), 201
     except psycopg2.Error as e:
         return jsonify({"error": f"Ошибка базы данных: {e}"}), 500
     finally:
         conn.close()
-
 
 @app.route('/ideas/<int:idea_id>', methods=['DELETE'])
 @authenticate
@@ -144,14 +122,13 @@ def delete_idea(idea_id):
     finally:
         conn.close()
 
-
-@app.route('/ideas/<int:idea_id>/status', methods=['PUT'])
+@app.route('/ideas/<int:idea_id>/status', methods=['PATCH'])
 @authenticate
 def update_status(idea_id):
     data = request.json
     new_status = data.get("status")
 
-    if new_status not in ["pending", "approved", "rejected"]:
+    if new_status not in ["новая", "в работе", "одобрено", "завершена"]:
         return jsonify({"error": "Неверный статус"}), 400
 
     try:
@@ -164,10 +141,6 @@ def update_status(idea_id):
         return jsonify({"error": f"Ошибка базы данных: {e}"}), 500
     finally:
         conn.close()
-
-@app.route('/admin', methods=['GET'])
-def admin_page():
-    return render_template('admin.html')
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))

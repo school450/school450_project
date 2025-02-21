@@ -1,46 +1,79 @@
-const serverUrl = "https://school450-project-1xdh.onrender.com";
+document.addEventListener("DOMContentLoaded", () => {
+    fetchIdeas();
+});
 
 async function fetchIdeas() {
-    const response = await fetch(`${serverUrl}/ideas`);
-    const ideas = await response.json();
-    const list = document.getElementById("ideasList");
-    list.innerHTML = "";
+    try {
+        const response = await fetch("/ideas");
+        const ideas = await response.json();
+        const ideasList = document.getElementById("ideasList");
+        ideasList.innerHTML = "";
 
-    ideas.forEach(idea => {
-        const div = document.createElement("div");
-        div.className = `idea ${idea.status}`;
-        div.innerHTML = `
-            <span>${idea.idea} (${new Date(idea.created_at).toLocaleString()})</span>
-            <select onchange="updateStatus(${idea.id}, this.value)">
-                <option value="pending" ${idea.status === "pending" ? "selected" : ""}>В ожидании</option>
-                <option value="approved" ${idea.status === "approved" ? "selected" : ""}>Одобрено</option>
-                <option value="rejected" ${idea.status === "rejected" ? "selected" : ""}>Отклонено</option>
-            </select>
-            <button onclick="deleteIdea(${idea.id})">🗑</button>
-        `;
-        list.appendChild(div);
-    });
-}
+        if (ideas.length === 0) {
+            ideasList.innerHTML = "<p>Нет заявок</p>";
+            return;
+        }
 
-async function updateStatus(id, status) {
-    await fetch(`${serverUrl}/ideas/${id}/status`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status })
-    });
-    fetchIdeas();
+        ideas.forEach(idea => {
+            const ideaElement = document.createElement("div");
+            ideaElement.classList.add("idea-card");
+
+            let color;
+            switch (idea.status) {
+                case "новая": color = "#b3d9ff"; break;
+                case "в работе": color = "#ffcc66"; break;
+                case "одобрено": color = "#99ff99"; break;
+                case "завершена": color = "#cccccc"; break;
+            }
+            ideaElement.style.backgroundColor = color;
+
+            ideaElement.innerHTML = `
+                <p>${idea.idea}</p>
+                <p>${new Date(idea.created_at).toLocaleString()}</p>
+                <select onchange="updateStatus(${idea.id}, this.value)">
+                    <option value="новая" ${idea.status === "новая" ? "selected" : ""}>Новая</option>
+                    <option value="в работе" ${idea.status === "в работе" ? "selected" : ""}>В работе</option>
+                    <option value="одобрено" ${idea.status === "одобрено" ? "selected" : ""}>Одобрено</option>
+                    <option value="завершена" ${idea.status === "завершена" ? "selected" : ""}>Завершена</option>
+                </select>
+                <button onclick="deleteIdea(${idea.id})">🗑 Удалить</button>
+            `;
+
+            ideasList.appendChild(ideaElement);
+        });
+    } catch (error) {
+        console.error("Ошибка загрузки идей:", error);
+    }
 }
 
 async function deleteIdea(id) {
-    await fetch(`${serverUrl}/ideas/${id}`, { method: "DELETE" });
-    fetchIdeas();
+    if (!confirm("Вы уверены, что хотите удалить эту заявку?")) return;
+
+    try {
+        const response = await fetch(`/ideas/${id}`, {
+            method: "DELETE",
+            headers: { "Authorization": `Bearer ${localStorage.getItem("adminToken")}` }
+        });
+
+        if (response.ok) {
+            fetchIdeas();
+        }
+    } catch (error) {
+        console.error("Ошибка удаления:", error);
+    }
 }
 
-function sortByDate() {
-    const list = document.getElementById("ideasList");
-    Array.from(list.children)
-        .sort((a, b) => new Date(b.dataset.date) - new Date(a.dataset.date))
-        .forEach(item => list.appendChild(item));
+async function updateStatus(id, newStatus) {
+    try {
+        await fetch(`/ideas/${id}/status`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("adminToken")}`
+            },
+            body: JSON.stringify({ status: newStatus })
+        });
+    } catch (error) {
+        console.error("Ошибка обновления статуса:", error);
+    }
 }
-
-document.addEventListener("DOMContentLoaded", fetchIdeas);
