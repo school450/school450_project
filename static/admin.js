@@ -92,7 +92,11 @@ async function loginAdmin() {
         if (response.ok) {
             localStorage.setItem("adminToken", result.token);
             document.getElementById('adminSection').style.display = 'block';
-            loadIdeas();
+            fetchIdeas(); // <-- Исправлено: должно быть fetchIdeas(), а не loadIdeas()
         } else {
             alert(result.error);
-       
+        }
+    } catch (error) {
+        console.error("Ошибка авторизации:", error);
+    }
+}
