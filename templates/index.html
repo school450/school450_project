@@ -126,14 +126,8 @@
 
         <div id="notification"></div> <!-- Уведомления теперь между вводом идеи и входом в админку -->
 
-        <h2>Вход администратора</h2>
-        <input type="password" id="adminCode" placeholder="Введите код администратора">
-        <button onclick="loginAdmin()">Войти</button>
+       <button onclick="location.href='/admin'">Вход для админов</button>
 
-        <div id="adminSection" style="display: none;">
-            <h2>Заявки:</h2>
-            <div id="ideasList"></div>
-        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
