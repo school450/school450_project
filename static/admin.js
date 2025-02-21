@@ -77,3 +77,22 @@ async function updateStatus(id, newStatus) {
         console.error("Ошибка обновления статуса:", error);
     }
 }
+const serverUrl = window.location.origin;
+
+async function loginAdmin() {
+    const code = document.getElementById('adminCode').value;
+    try {
+        const response = await fetch(`${serverUrl}/admin/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code })
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            localStorage.setItem("adminToken", result.token);
+            document.getElementById('adminSection').style.display = 'block';
+            loadIdeas();
+        } else {
+            alert(result.error);
+       
