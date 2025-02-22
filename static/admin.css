@@ -80,3 +80,9 @@ button:hover {
     background: #0056b3;
     transform: scale(1.05);
 }
+.idea-text {
+    word-wrap: break-word; /* Перенос длинных слов */
+    overflow-wrap: break-word;
+    white-space: normal; /* Позволяет тексту переноситься */
+    max-width: 100%; /* Чтобы текст не вылезал за границы */
+}
