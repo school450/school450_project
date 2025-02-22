@@ -403,6 +403,17 @@ fetch(`${serverUrl}/ideas/${id}`, {
         showNotification("Ошибка соединения!", "error");
     }
 }
+document.addEventListener("DOMContentLoaded", () => {
+    const ideaInput = document.getElementById("ideaInput");
+    if (ideaInput) {
+        ideaInput.addEventListener("keypress", (event) => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                submitIdea();
+            }
+        });
+    }
+});
     </script>
 </body>
 </html>
