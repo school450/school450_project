@@ -128,7 +128,7 @@ def update_status(idea_id):
     data = request.json
     new_status = data.get("status")
 
-    if new_status not in ["новая", "в работе", "одобрено", "завершена"]:
+    if new_status not in ["новая", "в работе", "одобрено", "отклонено"]:
         return jsonify({"error": "Неверный статус"}), 400
 
     try:
