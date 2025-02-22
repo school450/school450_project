@@ -86,3 +86,16 @@ button:hover {
     white-space: normal; /* Позволяет тексту переноситься */
     max-width: 100%; /* Чтобы текст не вылезал за границы */
 }
+.idea-container {
+    display: flex;
+    flex-direction: column; /* Элементы идут друг за другом вниз */
+    align-items: flex-start; /* Выравнивание по левому краю */
+    width: 100%;
+}
+
+.idea-text {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    max-width: 100%; /* Чтобы не выходило за границы */
+}
