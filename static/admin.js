@@ -28,16 +28,21 @@ async function fetchIdeas() {
             ideaElement.style.backgroundColor = color;
 
             ideaElement.innerHTML = `
-                <p>${idea.idea}</p>
-                <p>${new Date(idea.created_at).toLocaleString()}</p>
-                <select onchange="updateStatus(${idea.id}, this.value)">
-                    <option value="новая" ${idea.status === "новая" ? "selected" : ""}>Новая</option>
-                    <option value="в работе" ${idea.status === "в работе" ? "selected" : ""}>В работе</option>
-                    <option value="одобрено" ${idea.status === "одобрено" ? "selected" : ""}>Одобрено</option>
-                    <option value="завершена" ${idea.status === "завершена" ? "selected" : ""}>Завершена</option>
-                </select>
-                <button onclick="deleteIdea(${idea.id})">🗑 Удалить</button>
-            `;
+    <div>
+        <p><strong>Идея:</strong> ${idea.idea}</p>
+        <p style="font-size: 12px; color: gray;"><strong>Дата:</strong> ${new Date(idea.created_at).toLocaleString()}</p>
+    </div>
+    <div>
+        <select onchange="updateStatus(${idea.id}, this.value)">
+            <option value="новая" ${idea.status === "новая" ? "selected" : ""}>Новая</option>
+            <option value="в работе" ${idea.status === "в работе" ? "selected" : ""}>В работе</option>
+            <option value="одобрено" ${idea.status === "одобрено" ? "selected" : ""}>Одобрено</option>
+            <option value="завершена" ${idea.status === "завершена" ? "selected" : ""}>Завершена</option>
+        </select>
+        <button onclick="deleteIdea(${idea.id})">🗑 Удалить</button>
+    </div>
+`;
+
 
             ideasList.appendChild(ideaElement);
         });
@@ -65,7 +70,7 @@ async function deleteIdea(id) {
 
 async function updateStatus(id, newStatus) {
     try {
-        await fetch(`/ideas/${id}/status`, {
+        const response = await fetch(`/ideas/${id}/status`, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
@@ -73,10 +78,15 @@ async function updateStatus(id, newStatus) {
             },
             body: JSON.stringify({ status: newStatus })
         });
+
+        if (response.ok) {
+            fetchIdeas(); // Теперь список обновляется после изменения статуса
+        }
     } catch (error) {
         console.error("Ошибка обновления статуса:", error);
     }
 }
+
 const serverUrl = window.location.origin;
 
 async function loginAdmin() {
