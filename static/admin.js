@@ -37,7 +37,7 @@ async function fetchIdeas() {
             <option value="новая" ${idea.status === "новая" ? "selected" : ""}>Новая</option>
             <option value="в работе" ${idea.status === "в работе" ? "selected" : ""}>В работе</option>
             <option value="одобрено" ${idea.status === "одобрено" ? "selected" : ""}>Одобрено</option>
-            <option value="завершена" ${idea.status === "завершена" ? "selected" : ""}>Завершена</option>
+            <option value="отклонено" ${idea.status === "отклонено" ? "selected" : ""}>отклонено</option>
         </select>
         <button onclick="deleteIdea(${idea.id})">🗑 Удалить</button>
     </div>
