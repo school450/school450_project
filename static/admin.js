@@ -110,3 +110,25 @@ async function loginAdmin() {
         console.error("Ошибка авторизации:", error);
     }
 }
+document.addEventListener("DOMContentLoaded", () => {
+    fetchIdeas();
+
+    // Поддержка Enter для входа в админку
+    document.getElementById("adminCode").addEventListener("keypress", (event) => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            loginAdmin();
+        }
+    });
+
+    // Поддержка Enter для отправки новой идеи (если есть поле ввода)
+    const ideaInput = document.getElementById("ideaInput");
+    if (ideaInput) {
+        ideaInput.addEventListener("keypress", (event) => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                submitIdea();
+            }
+        });
+    }
+});
