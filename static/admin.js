@@ -23,7 +23,7 @@ async function fetchIdeas() {
                 case "новая": color = "#b3d9ff"; break;
                 case "в работе": color = "#ffcc66"; break;
                 case "одобрено": color = "#99ff99"; break;
-                case "отклонено": color = "#сссссс"; break;
+                case "отклонено": color = "#fa3e3e"; break;
             }
             ideaElement.style.backgroundColor = color;
 
