@@ -1,3 +1,5 @@
+console.log("Скрипт загружен!");
+
 function pauseAnimation() {
     console.log("Pause animation called");
 }
