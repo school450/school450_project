@@ -1,32 +1,33 @@
-.feedback-button {
+
+/* Контейнер */
+#feedbackContainer {
     position: fixed;
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
+    text-align: center;
+    cursor: pointer;
+}
+
+/* Плюсик */
+.feedback-button {
     width: 60px;
     height: 60px;
-    background: #4B89B0;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background: none;
     color: white;
-    font-size: 32px;
-    cursor: pointer;
-    transition: all 0.5s ease;
+    font-size: 40px;
+    font-weight: bold;
+    line-height: 60px;
+    text-align: center;
+    border-radius: 50%;
+    border: 2px solid white;
+    transition: transform 0.3s ease, background 0.3s ease;
 }
 
-.feedback-button.open {
-    width: 180px;
-    border-radius: 10px;
-}
-
+/* Текст */
 .feedback-text {
-    display: none;
     font-size: 16px;
-    margin-left: 10px;
-}
-
-.feedback-button.open .feedback-text {
-    display: inline;
+    color: white;
+    margin-top: 5px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
 }
