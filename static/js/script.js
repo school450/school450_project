@@ -21,17 +21,13 @@ document.addEventListener("DOMContentLoaded", () => {
         if (feedbackButton.classList.contains("open")) {
             feedbackButton.classList.remove("open");
             feedbackButton.style.transform = "rotate(0deg)";
-            feedbackText.style.transform = "translateY(0px)";
-            setTimeout(() => {
-                feedbackText.innerHTML = "Обратная связь";
-            }, 300);
+            feedbackText.style.opacity = "1"; 
+            feedbackText.textContent = "Обратная связь";
         } else {
             feedbackButton.classList.add("open");
             feedbackButton.style.transform = "rotate(45deg)";
-            feedbackText.style.transform = "translateY(20px)";
-            setTimeout(() => {
-                feedbackText.innerHTML = "manchenko.vd.zelenogorsk@gmail.com";
-            }, 300);
+            feedbackText.style.opacity = "1"; 
+            feedbackText.textContent = "manchenko.vd.zelenogorsk@gmail.com";
         }
     });
 });
