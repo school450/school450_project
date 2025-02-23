@@ -5,6 +5,7 @@ body {
     padding: 0;
 }
 
+/* Контейнер админки */
 .admin-container {
     max-width: 800px;
     margin: 40px auto;
@@ -12,60 +13,23 @@ body {
     background: white;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
 }
 
+/* Заголовки */
 h1, h2 {
     text-align: center;
     color: #333;
 }
 
-.idea-card {
-    background: #ffffff;
-    padding: 15px;
-    margin-bottom: 12px;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: transform 0.2s, box-shadow 0.2s;
+/* Поле ввода пароля */
+#adminCode {
+    display: block;
+    width: 100%;
+    margin: 10px auto;
 }
 
-.idea-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-}
-
-.idea-content {
-    display: flex;
-    flex-direction: column;
-}
-
-.idea-content p {
-    margin: 0;
-}
-
-.idea-content .idea-text {
-    font-size: 16px;
-    font-weight: 600;
-    color: #333;
-}
-
-.idea-content .idea-date {
-    font-size: 13px;
-    color: #777;
-    margin-top: 4px;
-}
-
-.select-status {
-    padding: 6px 10px;
-    font-size: 14px;
-    border-radius: 6px;
-    border: 1px solid #ddd;
-    background: #f8f9fa;
-    cursor: pointer;
-}
-
+/* Кнопки */
 button {
     background: #65A5D1;
     color: white;
@@ -80,32 +44,63 @@ button:hover {
     background: #0056b3;
     transform: scale(1.05);
 }
-.idea-text {
-    word-wrap: break-word; /* Перенос длинных слов */
-    overflow-wrap: break-word;
-    white-space: normal; /* Позволяет тексту переноситься */
-    max-width: 100%; /* Чтобы текст не вылезал за границы */
-}
-.idea-container {
-    display: flex;
-    flex-direction: column; /* Элементы идут друг за другом вниз */
-    align-items: flex-start; /* Выравнивание по левому краю */
-    width: 100%;
-}
 
-.idea-text {
+/* Карточки идей */
+.idea-card {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
     word-wrap: break-word;
     overflow-wrap: break-word;
-    white-space: normal;
-    max-width: 100%; /* Чтобы не выходило за границы */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
-.idea-container {
+
+.idea-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Контейнер текста в идее */
+.idea-content {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     width: 100%;
 }
 
+/* Текст идеи */
+.idea-content .idea-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    max-width: 100%;
+}
+
+/* Дата идеи */
+.idea-content .idea-date {
+    font-size: 13px;
+    color: #777;
+    margin-top: 4px;
+}
+
+/* Статус идеи */
+.select-status {
+    padding: 6px 10px;
+    font-size: 14px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    background: #f8f9fa;
+    cursor: pointer;
+}
+
+/* Исправленный стиль, чтобы длинные идеи не выходили за рамки */
 .idea-text {
     word-wrap: break-word;
     overflow-wrap: break-word;
@@ -113,6 +108,5 @@ button:hover {
     max-width: 100%;
     word-break: break-word;
     overflow: auto;
-    height: auto; /* Убирает обрезку текста */
+    height: auto;
 }
-

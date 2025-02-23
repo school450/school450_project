@@ -23,26 +23,21 @@ async function fetchIdeas() {
                 case "новая": color = "#b3d9ff"; break;
                 case "в работе": color = "#ffcc66"; break;
                 case "одобрено": color = "#99ff99"; break;
-                case "отклонено": color = "#e884e0"; break;
+                case "отклонено": color = "#cccccc"; break;
             }
             ideaElement.style.backgroundColor = color;
 
             ideaElement.innerHTML = `
-    <div>
-        <p><strong>Идея:</strong> ${idea.idea}</p>
-        <p style="font-size: 12px; color: gray;"><strong>Дата:</strong> ${new Date(idea.created_at).toLocaleString()}</p>
-    </div>
-    <div>
-        <select onchange="updateStatus(${idea.id}, this.value)">
-            <option value="новая" ${idea.status === "новая" ? "selected" : ""}>Новая</option>
-            <option value="в работе" ${idea.status === "в работе" ? "selected" : ""}>В работе</option>
-            <option value="одобрено" ${idea.status === "одобрено" ? "selected" : ""}>Одобрено</option>
-            <option value="отклонено" ${idea.status === "отклонено" ? "selected" : ""}>отклонено</option>
-        </select>
-        <button onclick="deleteIdea(${idea.id})">🗑 Удалить</button>
-    </div>
-`;
-
+                <p style="white-space: pre-wrap;">${idea.idea}</p>
+                <p>${new Date(idea.created_at).toLocaleString()}</p>
+                <select onchange="updateStatus(${idea.id}, this.value)">
+                    <option value="новая" ${idea.status === "новая" ? "selected" : ""}>Новая</option>
+                    <option value="в работе" ${idea.status === "в работе" ? "selected" : ""}>В работе</option>
+                    <option value="одобрено" ${idea.status === "одобрено" ? "selected" : ""}>Одобрено</option>
+                    <option value="отклонено" ${idea.status === "отклонено" ? "selected" : ""}>отклонено</option>
+                </select>
+                <button onclick="deleteIdea(${idea.id})">🗑 Удалить</button>
+            `;
 
             ideasList.appendChild(ideaElement);
         });
@@ -70,7 +65,7 @@ async function deleteIdea(id) {
 
 async function updateStatus(id, newStatus) {
     try {
-        const response = await fetch(`/ideas/${id}/status`, {
+        await fetch(`/ideas/${id}/status`, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
@@ -79,56 +74,8 @@ async function updateStatus(id, newStatus) {
             body: JSON.stringify({ status: newStatus })
         });
 
-        if (response.ok) {
-            fetchIdeas(); // Теперь список обновляется после изменения статуса
-        }
+        fetchIdeas(); // Теперь список обновляется сразу после изменения
     } catch (error) {
         console.error("Ошибка обновления статуса:", error);
     }
 }
-
-const serverUrl = window.location.origin;
-
-async function loginAdmin() {
-    const code = document.getElementById('adminCode').value;
-    try {
-        const response = await fetch(`${serverUrl}/admin/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ code })
-        });
-
-        const result = await response.json();
-        if (response.ok) {
-            localStorage.setItem("adminToken", result.token);
-            document.getElementById('adminSection').style.display = 'block';
-            fetchIdeas(); // <-- Исправлено: должно быть fetchIdeas(), а не loadIdeas()
-        } else {
-            alert(result.error);
-        }
-    } catch (error) {
-        console.error("Ошибка авторизации:", error);
-    }
-}
-document.addEventListener("DOMContentLoaded", () => {
-    fetchIdeas();
-
-    // Поддержка Enter для входа в админку
-    document.getElementById("adminCode").addEventListener("keypress", (event) => {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            loginAdmin();
-        }
-    });
-
-    // Поддержка Enter для отправки новой идеи (если есть поле ввода)
-    const ideaInput = document.getElementById("ideaInput");
-    if (ideaInput) {
-        ideaInput.addEventListener("keypress", (event) => {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                submitIdea();
-            }
-        });
-    }
-});

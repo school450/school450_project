@@ -124,6 +124,38 @@
     white-space: normal;
     max-width: 100%; /* Чтобы не выходило за границы */
 }
+.feedback-button {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 60px;
+    background: #4B89B0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 32px;
+    cursor: pointer;
+    transition: all 0.5s ease;
+}
+
+.feedback-button.open {
+    width: 180px;
+    border-radius: 10px;
+}
+
+.feedback-text {
+    display: none;
+    font-size: 16px;
+    margin-left: 10px;
+}
+
+.feedback-button.open .feedback-text {
+    display: inline;
+}
 
 
         /* Уведомления */
