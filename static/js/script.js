@@ -12,6 +12,7 @@ function submitIdea() {
     console.log("Submit idea called");
 }
 
+
 function loginAdmin() {
     console.log("Login admin called");
 }
