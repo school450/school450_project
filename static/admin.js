@@ -23,18 +23,20 @@ async function fetchIdeas() {
                 case "новая": color = "#b3d9ff"; break;
                 case "в работе": color = "#ffcc66"; break;
                 case "одобрено": color = "#99ff99"; break;
-                case "отклонено": color = "#cccccc"; break;
+                case "отклонено": color = "#ff9999"; break;
             }
             ideaElement.style.backgroundColor = color;
 
             ideaElement.innerHTML = `
-                <p style="white-space: pre-wrap;">${idea.idea}</p>
-                <p>${new Date(idea.created_at).toLocaleString()}</p>
-                <select onchange="updateStatus(${idea.id}, this.value)">
+                <div class="idea-content">
+                    <p class="idea-text">${idea.idea}</p>
+                    <p class="idea-date">${new Date(idea.created_at).toLocaleString()}</p>
+                </div>
+                <select class="select-status" onchange="updateStatus(${idea.id}, this.value)">
                     <option value="новая" ${idea.status === "новая" ? "selected" : ""}>Новая</option>
                     <option value="в работе" ${idea.status === "в работе" ? "selected" : ""}>В работе</option>
                     <option value="одобрено" ${idea.status === "одобрено" ? "selected" : ""}>Одобрено</option>
-                    <option value="отклонено" ${idea.status === "отклонено" ? "selected" : ""}>отклонено</option>
+                    <option value="отклонено" ${idea.status === "отклонено" ? "selected" : ""}>Отклонено</option>
                 </select>
                 <button onclick="deleteIdea(${idea.id})">🗑 Удалить</button>
             `;
@@ -74,8 +76,30 @@ async function updateStatus(id, newStatus) {
             body: JSON.stringify({ status: newStatus })
         });
 
-        fetchIdeas(); // Теперь список обновляется сразу после изменения
+        fetchIdeas();
     } catch (error) {
         console.error("Ошибка обновления статуса:", error);
+    }
+}
+
+async function loginAdmin() {
+    const code = document.getElementById('adminCode').value;
+    try {
+        const response = await fetch("/admin/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code })
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            localStorage.setItem("adminToken", result.token);
+            document.getElementById('adminSection').style.display = 'block';
+            fetchIdeas();
+        } else {
+            alert(result.error);
+        }
+    } catch (error) {
+        console.error("Ошибка входа:", error);
     }
 }
