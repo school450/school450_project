@@ -94,17 +94,35 @@ def get_ideas():
 def add_idea():
     data = request.json
     idea = data.get("idea")
+    
     if not idea or idea.strip() == "":
         return jsonify({"error": "Поле 'idea' обязательно"}), 400
 
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO ideas (idea, status, created_at) VALUES (%s, 'новая', NOW())", (idea,))
+
+        # Проверяем, есть ли уже такая же идея за последнюю неделю
+        cursor.execute("""
+            SELECT COUNT(*) FROM ideas 
+            WHERE idea = %s AND created_at >= NOW() - INTERVAL '7 days'
+        """, (idea,))
+        
+        count = cursor.fetchone()[0]
+        if count > 0:
+            return jsonify({"error": "Такая идея уже была добавлена за последнюю неделю"}), 400
+
+        # Если дубликата нет, добавляем идею
+        cursor.execute(
+            "INSERT INTO ideas (idea, status, created_at) VALUES (%s, 'новая', NOW())",
+            (idea,)
+        )
         conn.commit()
         return jsonify({"message": "Идея успешно добавлена"}), 201
+
     except psycopg2.Error as e:
         return jsonify({"error": f"Ошибка базы данных: {e}"}), 500
+
     finally:
         conn.close()
 

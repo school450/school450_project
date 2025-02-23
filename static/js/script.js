@@ -14,19 +14,15 @@ function loginAdmin() {
     console.log("Login admin called");
 }
 document.addEventListener("DOMContentLoaded", () => {
-    const feedbackBtn = document.createElement("div");
-    feedbackBtn.classList.add("feedback-button");
-    feedbackBtn.innerHTML = "+";
+    const feedbackBtn = document.getElementById("feedbackButton"); // Берём уже существующую кнопку
 
     feedbackBtn.addEventListener("click", () => {
         if (feedbackBtn.classList.contains("open")) {
             feedbackBtn.classList.remove("open");
-            feedbackBtn.innerHTML = "+";
+            feedbackBtn.innerHTML = "+"; // Вернуть плюс
         } else {
             feedbackBtn.classList.add("open");
             feedbackBtn.innerHTML = `<span class="feedback-text">manchenko.vd.zelenogorsk@gmail.com</span>`;
         }
     });
-
-    document.body.appendChild(feedbackBtn);
 });
