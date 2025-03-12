@@ -1,21 +1,3 @@
-console.log("Скрипт загружен!");
-
-function pauseAnimation() {
-    console.log("Pause animation called");
-}
-
-function resumeAnimation() {
-    console.log("Resume animation called");
-}
-
-function submitIdea() {
-    console.log("Submit idea called");
-}
-
-
-function loginAdmin() {
-    console.log("Login admin called");
-}
 document.addEventListener("DOMContentLoaded", () => {
     const feedbackButton = document.getElementById("feedbackButton");
     const feedbackText = document.getElementById("feedbackText");
@@ -24,13 +6,17 @@ document.addEventListener("DOMContentLoaded", () => {
         if (feedbackButton.classList.contains("open")) {
             feedbackButton.classList.remove("open");
             feedbackButton.style.transform = "rotate(0deg)";
-            feedbackText.style.opacity = "1"; 
-            feedbackText.textContent = "Обратная связь";
+            feedbackText.classList.remove("email");
+            setTimeout(() => {
+                feedbackText.textContent = "Обратная связь";
+            }, 300);
         } else {
             feedbackButton.classList.add("open");
             feedbackButton.style.transform = "rotate(45deg)";
-            feedbackText.style.opacity = "1"; 
-            feedbackText.textContent = "manchenko.vd.zelenogorsk@gmail.com";
+            setTimeout(() => {
+                feedbackText.textContent = "manchenko.vd.zelenogorsk@gmail.com";
+                feedbackText.classList.add("email");
+            }, 300);
         }
     });
 });
