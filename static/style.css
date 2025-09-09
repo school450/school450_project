@@ -75,16 +75,14 @@ button {
 
 #notification {
     text-align: center;
-    font-size: 15px;
-    margin: 6px 0 10px 0;
-    min-height: 20px; /* фиксированная высота под уведомления */
-    visibility: hidden;
+    font-size: 18px;
+    margin: 15px 0;
     opacity: 0;
-    transition: opacity 0.4s ease;
+    transition: opacity 0.5s ease;
+    display: none;
 }
 
 #notification.show {
-    visibility: visible;
     opacity: 1;
 }
 

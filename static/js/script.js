@@ -4,12 +4,16 @@ const serverUrl = "https://school450-project-1xdh.onrender.com";
 function showNotification(message, type) {
     const notification = document.getElementById("notification");
     notification.textContent = message;
-    notification.className = type;
-    notification.classList.add("show");
+    notification.className = type + " show"; // success / error
+    notification.style.display = "block"; // показываем
 
+    // убираем через 2 секунды
     setTimeout(() => {
         notification.classList.remove("show");
-    }, 2000); // держим 2.5 сек
+        setTimeout(() => {
+            notification.style.display = "none"; // полностью скрыть
+        }, 500); // время для плавного исчезновения
+    }, 2000);
 }
 
 
