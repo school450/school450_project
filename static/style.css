@@ -76,14 +76,15 @@ button {
 #notification {
     text-align: center;
     font-size: 15px;
-    margin: 6px 0 10px 0; /* чтобы было аккуратно между полем и кнопкой */
-    display: none;
+    margin: 6px 0 10px 0;
+    min-height: 20px; /* фиксированная высота под уведомления */
+    visibility: hidden;
     opacity: 0;
     transition: opacity 0.4s ease;
 }
 
 #notification.show {
-    display: block;
+    visibility: visible;
     opacity: 1;
 }
 
@@ -125,4 +126,19 @@ textarea {
 
 body {
     font-family: 'Inter', Arial, sans-serif;
+}
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* контент прижат к верху */
+    padding: 20px;
 }
