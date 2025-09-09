@@ -27,12 +27,12 @@ async function submitIdea() {
     submitButton.textContent = "Отправка...";
 
     const idea = ideaInput.value.trim();
-    if (!idea || /^[\s\W]+$/.test(idea)) {
-        showNotification("Введите осмысленный текст идеи!", "error");
-        submitButton.disabled = false;
-        submitButton.textContent = "Отправить";
-        return;
-    }
+    if (!idea || /^[\s\d\p{P}]+$/u.test(idea)) {
+    showNotification("Введите осмысленный текст идеи!", "error");
+    submitButton.disabled = false;
+    submitButton.textContent = "Отправить";
+    return;
+}
 
     try {
         const response = await fetch(`${serverUrl}/ideas`, {
