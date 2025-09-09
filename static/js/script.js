@@ -9,7 +9,7 @@ function showNotification(message, type) {
 
     setTimeout(() => {
         notification.classList.remove("show");
-    }, 2500); // держим 2.5 сек
+    }, 2000); // держим 2.5 сек
 }
 
 
