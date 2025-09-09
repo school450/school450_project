@@ -74,16 +74,18 @@ button {
 
 
 #notification {
+    position: absolute;
+    top: -40px; /* над кнопкой */
+    left: 50%;
+    transform: translateX(-50%);
     text-align: center;
-    font-size: 18px;
-    margin: 15px 0;
+    font-size: 16px;
+    padding: 6px 12px;
+    border-radius: 6px;
     opacity: 0;
     transition: opacity 0.5s ease;
     display: none;
-}
-
-#notification.show {
-    opacity: 1;
+    white-space: nowrap;
 }
 
 #notification.success {
@@ -92,6 +94,11 @@ button {
 
 #notification.error {
     color: red;
+}
+
+#notification.show {
+    display: block;
+    opacity: 1;
 }
 
 
