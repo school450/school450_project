@@ -127,18 +127,3 @@ textarea {
 body {
     font-family: 'Inter', Arial, sans-serif;
 }
-html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-}
-
-.container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start; /* контент прижат к верху */
-    padding: 20px;
-}
