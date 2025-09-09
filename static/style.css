@@ -10,10 +10,11 @@ body {
 .container {
     position: relative;
     max-width: 600px;
-    margin: 30px auto;
+    margin: 5vh auto;   /* адаптивный отступ сверху/снизу */
     padding: 20px;
     z-index: 10;
 }
+
 
 /* Текстовые элементы */
 h1, h2 {
@@ -70,28 +71,36 @@ button {
     from { opacity: 0; transform: scale(0.8); }
     to { opacity: 1; transform: scale(1); }
 }
-.success { color: green; }
-.error { color: red; }
+
 
 #notification {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    bottom: 60px; /* чуть выше кнопки */
-    background: rgba(255, 255, 255, 0.9);
-    padding: 10px 20px;
-    border-radius: 8px;
+    position: relative;
+    top: -10px; /* над кнопкой */
+    text-align: center;
     font-size: 16px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    padding: 8px 12px;
+    border-radius: 6px;
     display: none;
     opacity: 0;
-    transition: all 0.4s ease; /* плавное появление */
+    transition: opacity 0.6s ease, transform 0.3s ease;
 }
+
 #notification.show {
     display: block;
     opacity: 1;
-    transform: translate(-50%, -10px); /* всплытие вверх */
+    transform: translateY(-5px);
 }
+
+#notification.success {
+    background-color: rgba(76, 175, 80, 0.9); /* зелёный */
+    color: white;
+}
+
+#notification.error {
+    background-color: rgba(244, 67, 54, 0.9); /* красный */
+    color: white;
+}
+
 
 .container {
     max-width: 600px;
