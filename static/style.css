@@ -47,7 +47,13 @@ button {
 
 button:hover {
     background: #4B89B0;
+    transform: translateY(-3px); /* лёгкий подъём */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
+button {
+    transition: background 0.3s, transform 0.2s, box-shadow 0.2s;
+}
+
 
 /* Список идей */
 #ideasList {
@@ -66,3 +72,53 @@ button:hover {
 }
 .success { color: green; }
 .error { color: red; }
+
+#notification {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 60px; /* чуть выше кнопки */
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    display: none;
+    opacity: 0;
+    transition: all 0.4s ease; /* плавное появление */
+}
+#notification.show {
+    display: block;
+    opacity: 1;
+    transform: translate(-50%, -10px); /* всплытие вверх */
+}
+
+.container {
+    max-width: 600px;
+    width: 90%; /* на мобилках тянется */
+    margin: 30px auto;
+}
+
+@media (max-width: 600px) {
+    body {
+        overflow-x: hidden; /* убираем прокрутку вправо */
+    }
+    h1 {
+        font-size: 20px;
+    }
+    button {
+        font-size: 14px;
+        padding: 8px;
+    }
+}
+
+textarea {
+    resize: none;         /* запрещаем тянуть */
+    min-height: 80px;     /* фиксированная высота */
+    width: 100%;          /* ширина как у кнопки */
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', Arial, sans-serif;
+}

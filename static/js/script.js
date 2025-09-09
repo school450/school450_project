@@ -2,28 +2,16 @@ const serverUrl = "https://school450-project-1xdh.onrender.com";
 
 // --- Уведомления ---
 function showNotification(message, type) {
-    let notification = document.getElementById("notification");
-
-    // если блока нет в html → создаём
-    if (!notification) {
-        notification = document.createElement("div");
-        notification.id = "notification";
-        document.body.appendChild(notification);
-    }
-
+    const notification = document.getElementById('notification');
     notification.textContent = message;
-    notification.className = type; // success / error
-    notification.style.display = "block";
-    notification.style.opacity = "1";
+    notification.className = type;
+    notification.classList.add("show");
 
-    // скрыть через 3 секунды
     setTimeout(() => {
-        notification.style.opacity = "0";
-        setTimeout(() => {
-            notification.style.display = "none";
-        }, 600);
-    }, 3000);
+        notification.classList.remove("show");
+    }, 4000); // было 5000, стало 4000
 }
+
 
 // --- Отправка идеи ---
 async function submitIdea() {
