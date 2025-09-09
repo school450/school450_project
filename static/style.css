@@ -74,25 +74,23 @@ button {
 
 
 #notification {
-    position: absolute;
-    top: -40px; /* над кнопкой */
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
-    font-size: 16px;
-    padding: 6px 12px;
-    border-radius: 6px;
-    opacity: 0;
-    transition: opacity 0.5s ease;
     display: none;
-    white-space: nowrap;
+    margin: 8px 0;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    transition: opacity 0.3s ease-in-out;
 }
 
 #notification.success {
+    background-color: rgba(0, 200, 0, 0.1);
     color: green;
 }
 
 #notification.error {
+    background-color: rgba(200, 0, 0, 0.1);
     color: red;
 }
 
