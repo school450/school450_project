@@ -2,7 +2,13 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #c9c9ff;
+    background: linear-gradient(
+        to bottom,
+        #65A5D1 0%,
+        #89BFE0 35%,
+        #B0D8EC 70%,
+        #F0F8FF 100%
+    );
     overflow: hidden;
 }
 
