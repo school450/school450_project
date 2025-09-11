@@ -1,8 +1,24 @@
-body {
-    font-family: "Inter", Arial, sans-serif;
-    background-color: #c9c9ff;
+html, body {
+    height: 100%;
     margin: 0;
     padding: 0;
+    background: linear-gradient(
+        to bottom,
+        #65A5D1 0%,
+        #89BFE0 35%,
+        #B0D8EC 70%,
+        #F0F8FF 100%
+    );
+    background-attachment: fixed;
+    overflow-x: hidden;
+
+    /* для айфонов */
+    min-height: -webkit-fill-available;
+}
+
+body {
+    /* чтобы фон заходил и под статусбар */
+    background-color: #65A5D1;
 }
 
 /* Контейнер админки */
