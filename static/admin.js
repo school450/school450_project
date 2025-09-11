@@ -90,6 +90,15 @@ async function loginAdmin() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ code })
         });
+    // Enter = отправка
+    if (code) {
+        code.getElementById("keypress", (event) => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                loginAdmin();
+            }
+        });
+    }
 
         const result = await response.json();
         if (response.ok) {
@@ -105,12 +114,4 @@ async function loginAdmin() {
 }
 
 
-    // Enter = отправка
-    if (code) {
-        code.getElementById("keypress", (event) => {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                loginAdmin();
-            }
-        });
-    }
+    
