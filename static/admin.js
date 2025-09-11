@@ -103,3 +103,14 @@ async function loginAdmin() {
         console.error("Ошибка входа:", error);
     }
 }
+
+
+    // Enter = отправка
+    if (code) {
+        code.getElementById("keypress", (event) => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                loginAdmin();
+            }
+        });
+    }
