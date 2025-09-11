@@ -90,16 +90,6 @@ async function loginAdmin() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ code })
         });
-    // Enter = отправка
-    if (response) {
-        response.getElementById("keypress", (event) => {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                loginAdmin();
-            }
-        });
-    }
-
         const result = await response.json();
         if (response.ok) {
             localStorage.setItem("adminToken", result.token);
