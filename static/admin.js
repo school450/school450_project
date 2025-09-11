@@ -91,8 +91,8 @@ async function loginAdmin() {
             body: JSON.stringify({ code })
         });
     // Enter = отправка
-    if (code) {
-        value.getElementById("keypress", (event) => {
+    if (response) {
+        response.getElementById("keypress", (event) => {
             if (event.key === "Enter") {
                 event.preventDefault();
                 loginAdmin();
