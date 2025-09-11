@@ -92,7 +92,7 @@ async function loginAdmin() {
         });
     // Enter = отправка
     if (code) {
-        code.getElementById("keypress", (event) => {
+        value.getElementById("keypress", (event) => {
             if (event.key === "Enter") {
                 event.preventDefault();
                 loginAdmin();
