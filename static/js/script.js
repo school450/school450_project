@@ -75,4 +75,10 @@ document.addEventListener("DOMContentLoaded", () => {
         submitButton.addEventListener("click", submitIdea);
     }
 });
+function pauseAnimation() {
+    // пока пусто
+}
 
+function resumeAnimation() {
+    // пока пусто
+}
