@@ -14,10 +14,21 @@
     <div class="container">
         <h1>Приём идей и предложений школы №450</h1>
         <textarea id="ideaInput" placeholder="Введите вашу идею..." onfocus="pauseAnimation()" onblur="resumeAnimation()"></textarea>
-        <div id="notification"></div>
-        <button id="submitButton" onclick="submitIdea()">Отправить</button>
-        <br><br>
-        <button onclick="location.href='/admin'">Вход для админов</button>
+
+<select id="categorySelect">
+    <option value="Столовая">Столовая</option>
+    <option value="Территория">Территория</option>
+    <option value="Учебный процесс">Учебный процесс</option>
+    <option value="Спортзал">Спортзал</option>
+    <option value="Администрация">Администрация</option>
+    <option value="Другое" selected>Другое</option>
+</select>
+
+<div id="notification"></div>
+<button id="submitButton" onclick="submitIdea()">Отправить</button>
+<br><br>
+<button onclick="location.href='/admin'">Вход для админов</button>
+
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
 

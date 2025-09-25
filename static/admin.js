@@ -29,8 +29,12 @@ async function fetchIdeas() {
 
             ideaElement.innerHTML = `
                 <div class="idea-content">
-                    <p class="idea-text">${idea.idea}</p>
-                    <p class="idea-date">${new Date(idea.created_at).toLocaleString()}</p>
+                    <p class="idea-text">${idea.idea} ${idea.count > 1 ? `(×${idea.count})` : ""}</p>
+                    <p class="idea-date">
+                    Категория: ${idea.category} <br>
+                    ${new Date(idea.created_at).toLocaleString()}
+                    </p>
+                
                 </div>
                 <select class="select-status" onchange="updateStatus(${idea.id}, this.value)">
                     <option value="новая" ${idea.status === "новая" ? "selected" : ""}>Новая</option>

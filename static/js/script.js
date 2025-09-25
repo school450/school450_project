@@ -34,12 +34,14 @@ async function submitIdea() {
     return;
 }
 
-    try {
-        const response = await fetch(`${serverUrl}/ideas`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ idea })
-        });
+try {
+    const category = document.getElementById("categorySelect").value; // ✔️ вынесено сюда
+
+    const response = await fetch(`${serverUrl}/ideas`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idea, category }) // ✔️ теперь нормально
+    });
 
         if (response.ok) {
             showNotification("Идея отправлена!", "success");

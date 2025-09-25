@@ -94,7 +94,8 @@ def get_ideas():
 def add_idea():
     data = request.json
     idea = data.get("idea")
-    
+    category = data.get("category", "Другое")  # если не передали — ставим "Другое"
+
     if not idea or idea.strip() == "":
         return jsonify({"error": "Поле 'idea' обязательно"}), 400
 
@@ -102,20 +103,26 @@ def add_idea():
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # Проверяем, есть ли уже такая же идея за последнюю неделю
+        # Проверяем, есть ли уже такая идея
         cursor.execute("""
-            SELECT COUNT(*) FROM ideas 
-            WHERE idea = %s AND created_at >= NOW() - INTERVAL '7 days'
-        """, (idea,))
-        
-        count = cursor.fetchone()[0]
-        if count > 0:
-            return jsonify({"error": "Такая идея уже была добавлена за последнюю неделю"}), 400
+            SELECT id, count FROM ideas 
+            WHERE idea = %s AND category = %s
+        """, (idea, category))
+        existing = cursor.fetchone()
 
-        # Если дубликата нет, добавляем идею
+        if existing:
+            idea_id, current_count = existing
+            cursor.execute(
+                "UPDATE ideas SET count = %s WHERE id = %s",
+                (current_count + 1, idea_id)
+            )
+            conn.commit()
+            return jsonify({"message": "Идея уже есть, увеличено количество"}), 200
+
+        # Если дубликата нет → добавляем новую
         cursor.execute(
-            "INSERT INTO ideas (idea, status, created_at) VALUES (%s, 'новая', NOW())",
-            (idea,)
+            "INSERT INTO ideas (idea, category, status, created_at, count) VALUES (%s, %s, 'новая', NOW(), 1)",
+            (idea, category)
         )
         conn.commit()
         return jsonify({"message": "Идея успешно добавлена"}), 201
