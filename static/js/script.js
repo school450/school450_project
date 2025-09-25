@@ -23,25 +23,25 @@ function showNotification(message, type) {
 async function submitIdea() {
     const ideaInput = document.getElementById("ideaInput");
     const submitButton = document.getElementById("submitButton");
+    const category = document.getElementById("categorySelect").value; // ← ВЫНЕСЕНА сюда
+
     submitButton.disabled = true;
     submitButton.textContent = "Отправка...";
 
     const idea = ideaInput.value.trim();
     if (!idea || /^[\s\d\p{P}]+$/u.test(idea)) {
-    showNotification("Введите осмысленный текст идеи!", "error");
-    submitButton.disabled = false;
-    submitButton.textContent = "Отправить";
-    return;
-}
+        showNotification("Введите осмысленный текст идеи!", "error");
+        submitButton.disabled = false;
+        submitButton.textContent = "Отправить";
+        return;
+    }
 
-try {
-    const category = document.getElementById("categorySelect").value; // ✔️ вынесено сюда
-
-    const response = await fetch(`${serverUrl}/ideas`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idea, category }) // ✔️ теперь нормально
-    });
+    try {
+        const response = await fetch(`${serverUrl}/ideas`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ idea, category }) // ← теперь категория уходит
+        });
 
         if (response.ok) {
             showNotification("Идея отправлена!", "success");
