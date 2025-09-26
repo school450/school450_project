@@ -87,7 +87,7 @@ def authenticate(f):
 def get_ideas():
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=DictCursor)
-    cursor.execute('SELECT id, idea, category, count, status, created_at FROM ideas ORDER BY created_at DESC')  # ← добавили category и count
+    cursor.execute('SELECT id, idea, category, count, status, created_at FROM ideas ORDER BY created_at DESC')
     ideas = cursor.fetchall()
     conn.close()
     return jsonify([dict(idea) for idea in ideas])
