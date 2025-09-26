@@ -18,6 +18,28 @@
 
         <div id="adminSection" style="display: none;">
             <h2>Список идей</h2>
+        
+            <!-- Панель фильтрации и сортировки -->
+            <div class="filter-sort-panel">
+                <label for="categoryFilter">Категория:</label>
+                <select id="categoryFilter">
+                    <option value="all">Все</option>
+                    <option value="Столовая">Столовая</option>
+                    <option value="Территория">Территория</option>
+                    <option value="Учебный процесс">Учебный процесс</option>
+                    <option value="Спортзал">Спортзал</option>
+                    <option value="Администрация">Администрация</option>
+                    <option value="Другое">Другое</option>
+                </select>
+        
+                <label for="sortBy">Сортировать по:</label>
+                <select id="sortBy">
+                    <option value="date">Дате</option>
+                    <option value="count">Количеству голосов</option>
+                    <option value="category">Категории</option>
+                </select>
+            </div>
+        
             <div id="ideasList"></div>
         </div>
     </div>

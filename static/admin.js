@@ -13,8 +13,27 @@ async function fetchIdeas() {
             ideasList.innerHTML = "<p>Нет заявок</p>";
             return;
         }
+        // фильтр
+        const filter = document.getElementById("filterCategory").value;
+        let filteredIdeas = ideas;
+        if (filter !== "all") {
+          filteredIdeas = ideas.filter(i => i.category === filter);
+        }
+        
+        // сортировка
+        const sortBy = document.getElementById("sortBy").value;
+        filteredIdeas.sort((a, b) => {
+          if (sortBy === "date") {
+            return new Date(b.created_at) - new Date(a.created_at); // новые сверху
+          } else if (sortBy === "count") {
+            return b.count - a.count; // популярные сверху
+          } else if (sortBy === "category") {
+            return a.category.localeCompare(b.category); // по алфавиту
+          }
+          return 0;
+        });
 
-        ideas.forEach(idea => {
+        filteredIdeas.forEach(idea => {
             const ideaElement = document.createElement("div");
             ideaElement.classList.add("idea-card");
 
