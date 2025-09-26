@@ -25,6 +25,8 @@ def init_db():
             CREATE TABLE IF NOT EXISTS ideas (
                 id SERIAL PRIMARY KEY,
                 idea TEXT NOT NULL,
+                category VARCHAR(50) DEFAULT 'Другое',
+                count INTEGER DEFAULT 1,
                 status VARCHAR(20) DEFAULT 'новая',
                 created_at TIMESTAMP DEFAULT NOW()
             )
@@ -33,7 +35,7 @@ def init_db():
     except psycopg2.Error as e:
         print(f"Ошибка базы данных при инициализации: {e}")
     finally:
-        conn.close()
+        conn.close() 
 
 init_db()
 
@@ -85,7 +87,7 @@ def authenticate(f):
 def get_ideas():
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=DictCursor)
-    cursor.execute('SELECT id, idea, status, created_at FROM ideas ORDER BY created_at DESC')
+    cursor.execute('SELECT id, idea, category, count, status, created_at FROM ideas ORDER BY created_at DESC')  # ← добавили category и count
     ideas = cursor.fetchall()
     conn.close()
     return jsonify([dict(idea) for idea in ideas])
