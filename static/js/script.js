@@ -59,9 +59,25 @@ async function submitIdea() {
 }
 
 // --- События при загрузке ---
-document.addEventListener("DOMContentLoaded", () => {
+window.onload = () => {
     const ideaInput = document.getElementById("ideaInput");
     const submitButton = document.getElementById("submitButton");
+
+    if (ideaInput && !ideaInput.dataset.bound) {
+        ideaInput.addEventListener("keypress", (event) => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                submitIdea();
+            }
+        });
+        ideaInput.dataset.bound = true; // 🚫 чтобы второй раз не навесилось
+    }
+
+    if (submitButton && !submitButton.dataset.bound) {
+        submitButton.addEventListener("click", submitIdea);
+        submitButton.dataset.bound = true; // 🚫 чтобы второй раз не навесилось
+    }
+};
 
     // Enter = отправка
     if (ideaInput) {
@@ -72,13 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
-
-    // Клик по кнопке
-    if (submitButton) {
-        submitButton.addEventListener("click", submitIdea);
-    }
-});
-function pauseAnimation() {
+    function pauseAnimation() {
     // пока пусто
 }
 
