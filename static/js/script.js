@@ -21,8 +21,9 @@ function showNotification(message, type) {
 
 // --- Отправка идеи ---
 async function submitIdea() {
-    const ideaInput = document.getElementById("ideaInput");
     const submitButton = document.getElementById("submitButton");
+    if (submitButton.disabled) return; // 🚫 уже идёт отправка
+    const ideaInput = document.getElementById("ideaInput");
     const category = document.getElementById("categorySelect").value; // ← ВЫНЕСЕНА сюда
 
     submitButton.disabled = true;
