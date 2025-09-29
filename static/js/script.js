@@ -5,13 +5,13 @@ function showNotification(message, type) {
     const notification = document.getElementById("notification");
     notification.textContent = message;
     notification.className = type + " show"; // success / error
-    notification.style.display = "block"; // показываем
+    notification.style.display = "block";
 
     // убираем через 2 секунды
     setTimeout(() => {
         notification.classList.remove("show");
         setTimeout(() => {
-            notification.style.display = "none"; // полностью скрыть
+            notification.style.display = "none";
         }, 500);
     }, 2000);
 }
@@ -22,13 +22,13 @@ async function submitIdea() {
     const ideaInput = document.getElementById("ideaInput");
     const category = document.getElementById("categorySelect").value;
 
-    if (!category) {
+    // 🚫 обязательный выбор категории
+    if (!category || category.trim() === "") {
         showNotification("Выберите категорию!", "error");
-        submitButton.disabled = false;
-        submitButton.textContent = "Отправить";
         return;
     }
 
+    if (submitButton.disabled) return; // 🚫 защита от двойного клика
     submitButton.disabled = true;
     submitButton.textContent = "Отправка...";
 
@@ -50,6 +50,7 @@ async function submitIdea() {
         if (response.ok) {
             showNotification("Идея отправлена!", "success");
             ideaInput.value = "";
+            document.getElementById("categorySelect").selectedIndex = 0; // сброс категории
         } else {
             showNotification("Ошибка отправки!", "error");
         }
@@ -66,26 +67,20 @@ window.onload = () => {
     const ideaInput = document.getElementById("ideaInput");
     const submitButton = document.getElementById("submitButton");
 
-    if (ideaInput && !ideaInput.dataset.bound) {
+    if (ideaInput) {
         ideaInput.addEventListener("keypress", (event) => {
             if (event.key === "Enter") {
                 event.preventDefault();
                 submitIdea();
             }
         });
-        ideaInput.dataset.bound = true;
     }
 
-    if (submitButton && !submitButton.dataset.bound) {
+    if (submitButton) {
         submitButton.addEventListener("click", submitIdea);
-        submitButton.dataset.bound = true;
     }
 };
 
 // --- Заглушки для анимации ---
-function pauseAnimation() {
-    // пока пусто
-}
-function resumeAnimation() {
-    // пока пусто
-}
+function pauseAnimation() {}
+function resumeAnimation() {}
