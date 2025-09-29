@@ -141,3 +141,28 @@ textarea {
 body {
     font-family: 'Inter', Arial, sans-serif;
 }
+/* Выпадающий список категорий */
+select {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+    font-size: 16px;
+    color: #333;
+    cursor: pointer;
+    appearance: none; /* убираем стандартную стрелку */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
+}
+
+select:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(101,165,209,0.8);
+}
