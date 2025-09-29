@@ -95,3 +95,11 @@ window.onload = () => {
 function resumeAnimation() {
     // пока пусто
 }
+const category = document.getElementById("categorySelect").value;
+
+if (!category) {
+    showNotification("Выберите категорию!", "error");
+    submitButton.disabled = false;
+    submitButton.textContent = "Отправить";
+    return;
+}
