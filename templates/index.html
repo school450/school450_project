@@ -15,13 +15,14 @@
         <h1>Приём идей и предложений школы №450</h1>
         <textarea id="ideaInput" placeholder="Введите вашу идею..." onfocus="pauseAnimation()" onblur="resumeAnimation()"></textarea>
 
-<select id="categorySelect">
+<select id="categorySelect" required>
+    <option value="" disabled selected>— Выберите категорию —</option>
     <option value="Столовая">Столовая</option>
     <option value="Территория">Территория</option>
     <option value="Учебный процесс">Учебный процесс</option>
     <option value="Спортзал">Спортзал</option>
     <option value="Администрация">Администрация</option>
-    <option value="Другое" selected>Другое</option>
+    <option value="Другое">Другое</option>
 </select>
 
 <div id="notification"></div>
