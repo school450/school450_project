@@ -21,11 +21,17 @@ function showNotification(message, type) {
 
 // --- Отправка идеи ---
 async function submitIdea() {
+    const category = document.getElementById("categorySelect").value;
+    if (!category) {
+    showNotification("Выберите категорию!", "error");
+    submitButton.disabled = false;
+    submitButton.textContent = "Отправить";
+    return;
+    }
     const submitButton = document.getElementById("submitButton");
     if (submitButton.disabled) return; // 🚫 уже идёт отправка
     const ideaInput = document.getElementById("ideaInput");
-    const category = document.getElementById("categorySelect").value; // ← ВЫНЕСЕНА сюда
-
+    
     submitButton.disabled = true;
     submitButton.textContent = "Отправка...";
 
