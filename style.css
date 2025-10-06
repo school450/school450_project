@@ -1,0 +1,53 @@
+/* Added improvements for premium design */
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(
+        to bottom,
+        #4B79A1 0%, /* Updated gradient to give a more premium look */
+        #283E51 100%
+    );
+    background-attachment: fixed;
+    overflow-x: hidden;
+}
+
+body {
+    background-color: #4B79A1; /* Updated fallback color */
+}
+
+.container {
+    position: relative;
+    max-width: 800px; /* Increased width for better layout */
+    margin: 5vh auto;
+    padding: 30px; /* Added more padding */
+    z-index: 10;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Added shadow for depth */
+    border-radius: 10px; /* Enhanced roundness */
+    background: rgba(255, 255, 255, 0.8); /* Added subtle background */
+    backdrop-filter: blur(10px);
+}
+
+h1, h2 {
+    text-align: center;
+    color: #222; /* Made font darker for better contrast */
+    font-weight: 700; /* Added weight for premium feel */
+}
+
+textarea, input {
+    border-radius: 10px; /* Increased roundness */
+    padding: 15px; /* Increased padding */
+}
+
+button {
+    background: linear-gradient(to right, #4CAF50, #2E7D32); /* Added gradient for buttons */
+    border-radius: 10px; /* Enhanced button shape */
+    font-weight: bold; /* Made text bold */
+    transition: all 0.3s ease; /* Smoothed transitions */
+}
+
+button:hover {
+    background: linear-gradient(to right, #2E7D32, #4CAF50); /* Reverse gradient on hover */
+    transform: scale(1.05); /* Slight scaling effect */
+}
