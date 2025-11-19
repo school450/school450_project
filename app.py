@@ -148,7 +148,11 @@ def delete_idea(idea_id):
         return jsonify({"error": f"Ошибка базы данных: {e}"}), 500
     finally:
         conn.close()
-
+@app.route("/health")
+def health_check():
+return
+"OK"
+, 200.
 @app.route('/ideas/<int:idea_id>/status', methods=['PATCH'])
 @authenticate
 def update_status(idea_id):
